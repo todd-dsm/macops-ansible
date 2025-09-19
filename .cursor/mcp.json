@@ -1,0 +1,17 @@
+{
+  "mcpServers": {
+    "ansible": {
+      "command": "/opt/homebrew/bin/uv",
+      "args": [
+        "--directory",
+        "/Users/devr/code/macops-ansible",
+        "run",
+        "ansible.py"
+      ],
+      "env": {
+        "AAP_TOKEN": "<aap-token>",
+        "AAP_URL": "https://<aap-url>/api/controller/v2"
+      }
+    }
+  }
+}
