@@ -1,120 +1,84 @@
 ---
 # Pre-flight validation tasks
-- name: Check if running on macOS
-  fail:
-    msg: "This automation is designed for macOS only"
-  when: ansible_os_family != "Darwin"
+- name: Validate running on macOS
+  assert:
+    that:
+      - ansible_os_family == "Darwin"
+    fail_msg: "This automation is designed for macOS only"
+    success_msg: "Pass: Running on macOS ({{ ansible_os_family }})"
 
-- name: Display macOS validation success
-  debug:
-    msg: "✓ Running on macOS ({{ ansible_os_family }})"
-  when: ansible_os_family == "Darwin"
+- name: Validate required environment variables
+  assert:
+    that:
+      - ansible_env[item] is defined
+      - ansible_env[item] != ""
+    fail_msg: "Fail: Required environment variable {{ item }} is not defined or empty."
+    success_msg: "Pass: Environment variable {{ item }} = {{ ansible_env[item] }}."
 
-- name: Check for required environment variables
-  fail:
-    msg: "Required environment variable {{ item }} is not defined or empty"
-  when: ansible_env[item] is not defined or ansible_env[item] == ""
   loop:
     - myFullName
     - myEmailAdd
     - myMBPisFor
     - adminDir
 
-- name: Display environment variables success
-  debug:
-    msg: "✓ All required environment variables are defined"
-
-# File/Directory existence validations using stat pattern
-- name: Check if admin directory exists
+# File/Directory existence validations using assert pattern
+- name: Check admin directory
   ansible.builtin.stat:
     path: "{{ ansible_env.adminDir }}"
   register: admin_dir_check
 
-- name: Fail if admin directory missing
-  fail:
-    msg: "Admin directory {{ ansible_env.adminDir }} does not exist. Please run install-prep.sh first."
-  when: not admin_dir_check.stat.exists
+- name: Validate admin directory exists
+  assert:
+    that:
+      - admin_dir_check.stat.exists
+    fail_msg: "Fail: Admin directory {{ ansible_env.adminDir }} does not exist. Please run install-prep.sh first."
+    success_msg: "Pass: Admin directory found at {{ ansible_env.adminDir }}."
 
-- name: Display admin directory success
-  debug:
-    msg: "✓ Admin directory found: {{ ansible_env.adminDir }}"
-  when: admin_dir_check.stat.exists
-
-- name: Check if backup directory exists
+- name: Check backup directory
   ansible.builtin.stat:
     path: "{{ ansible_env.backup_dir }}"
   register: backup_dir_check
 
-- name: Fail if backup directory missing
-  fail:
-    msg: "Backup directory {{ ansible_env.backup_dir }} does not exist. Please run install-prep.sh first."
-  when: not backup_dir_check.stat.exists
+- name: Validate backup directory exists
+  assert:
+    that:
+      - backup_dir_check.stat.exists
+    fail_msg: "Fail: Backup directory {{ ansible_env.backup_dir }} does not exist. Please run install-prep.sh first."
+    success_msg: "Pass: Backup directory found at {{ ansible_env.backup_dir }}."
 
-- name: Display backup directory success
-  debug:
-    msg: "✓ Backup directory found: {{ ansible_env.backup_dir }}"
-  when: backup_dir_check.stat.exists
-
-- name: Check if SSH known_hosts file exists
+- name: Check SSH known_hosts file
   ansible.builtin.stat:
     path: "{{ ansible_env.knownHosts }}"
   register: known_hosts_check
 
-- name: Fail if SSH known_hosts missing
-  fail:
-    msg: "SSH known_hosts file {{ ansible_env.knownHosts }} does not exist. Please ensure SSH is configured."
-  when: not known_hosts_check.stat.exists
-
-- name: Display SSH known_hosts success
-  debug:
-    msg: "✓ SSH known_hosts file found: {{ ansible_env.knownHosts }}"
-  when: known_hosts_check.stat.exists
-
-- name: Check if my-vars.env exists
-  ansible.builtin.stat:
-    path: "./my-vars.env"
-  register: vars_env_check
+- name: Validate SSH known_hosts file exists
+  assert:
+    that:
+      - known_hosts_check.stat.exists
+    fail_msg: "Fail: SSH known_hosts file {{ ansible_env.knownHosts }} does not exist. Please ensure SSH is configured."
+    success_msg: "Pass: SSH known_hosts file found at {{ ansible_env.knownHosts }}."
 
 # Command availability validations
-- name: Check if brew command is available
-  command: which brew
-  register: brew_check
-  failed_when: false
-  changed_when: false
+- name: Check Homebrew binary
+  ansible.builtin.stat:
+    path: "/opt/homebrew/bin/brew"
+  register: homebrew_check
 
-- name: Fail if Homebrew not installed
-  fail:
-    msg: "Homebrew is not installed. Please run install-prep.sh first."
-  when: brew_check.rc != 0
+- name: Validate Homebrew is installed
+  assert:
+    that:
+      - homebrew_check.stat.exists
+    fail_msg: "Fail: Homebrew is not installed. Please run install-prep.sh first."
+    success_msg: "Pass: Homebrew is installed at /opt/homebrew/bin/brew."
 
-- name: Display Homebrew success
-  debug:
-    msg: "✓ Homebrew found: {{ brew_check.stdout }}"
-  when: brew_check.rc == 0
-
-- name: Check if git command is available
-  command: which git
+- name: Check Git binary
+  ansible.builtin.stat:
+    path: "/opt/homebrew/bin/git"
   register: git_check
-  failed_when: false
-  changed_when: false
 
-- name: Fail if Git not installed
-  fail:
-    msg: "Git is not installed. Please run install-prep.sh first."
-  when: git_check.rc != 0
-
-- name: Display Git success
-  debug:
-    msg: "✓ Git found: {{ git_check.stdout }}"
-  when: git_check.rc == 0
-
-- name: Display validated configuration
-  debug:
-    msg: |
-      Configuration validated:
-      - User: {{ ansible_env.myFullName }}
-      - Email: {{ ansible_env.myEmailAdd }}
-      - MBP Purpose: {{ ansible_env.myMBPisFor }}
-      - Admin Directory: {{ ansible_env.adminDir }}
-      - Environment: {{ env_mode }}
-      - Prerequisites: All checks passed ✓
+- name: Validate Git is installed
+  assert:
+    that:
+      - git_check.stat.exists
+    fail_msg: "Fail: Git is not installed. Please run install-prep.sh first."
+    success_msg: "Pass: Git is installed at /usr/bin/git."
