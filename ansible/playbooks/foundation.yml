@@ -11,15 +11,10 @@
     HOMEBREW_NO_ENV_HINTS: "{{ homebrew_no_env_hints }}"
 
   tasks:
-    - name: Load variables from my-vars.env
-      parse_vars_env:
-        env_mode: "{{ env_mode | default('LIVE') }}"
-        vars_file: "my-vars.env"
-
-    - name: Display configuration start message
+    - name: Kick-off message
       debug:
         msg: |
-          Configuring this macOS for {{ my_full_name }}
+          Configuring this macOS for {{ ansible_env.myFullName }}
           Environment mode: {{ env_mode }}
           Start time: {{ time_pre }}
 

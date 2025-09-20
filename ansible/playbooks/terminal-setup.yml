@@ -11,25 +11,25 @@
 
     - name: Ensure terminal downloads directory exists
       file:
-        path: "{{ term_stuff }}"
+        path: "{{ ansible_env.termStuff }}"
         state: directory
         mode: '0755'
 
     - name: Clone Solarized terminal theme
       git:
-        repo: "{{ solarized_git_repo }}"
-        dest: "{{ term_stuff }}/solarized"
+        repo: "{{ ansible_env.solarizedGitRepo }}"
+        dest: "{{ ansible_env.termStuff }}/solarized"
         clone: yes
         update: yes
       register: solarized_clone
 
     - name: Display solarized clone status
       debug:
-        msg: "Solarized theme {% if solarized_clone.changed %}cloned{% else %}already present{% endif %} at {{ term_stuff }}/solarized"
+        msg: "Solarized theme {% if solarized_clone.changed %}cloned{% else %}already present{% endif %} at {{ ansible_env.termStuff }}/solarized"
 
     - name: Check for existing settings to restore
       stat:
-        path: "{{ my_backups }}"
+        path: "{{ ansible_env.myBackups }}"
       register: backup_check
 
     - name: Display settings restore status
@@ -37,7 +37,7 @@
         msg: "{% if backup_check.stat.exists %}Settings backup found - will be restored{% else %}No settings backup found to restore{% endif %}"
 
     - name: Restore terminal settings if available
-      shell: rsync -aEv "{{ my_backups }}/Documents/system" "{{ my_docs }}/"
+      shell: rsync -aEv "{{ ansible_env.myBackups }}/Documents/system" "{{ my_docs }}/"
       when: backup_check.stat.exists
       register: settings_restore
       ignore_errors: yes

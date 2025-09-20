@@ -5,28 +5,22 @@
     msg: "This automation is designed for macOS only"
   when: ansible_os_family != "Darwin"
 
-- name: Verify my-vars.env was sourced correctly
+- name: Check for required environment variables
   fail:
-    msg: "my-vars.env was not configured properly. myFullName cannot be 'fName lName'"
-  when: my_full_name == "fName lName"
-
-- name: Check for required variables
-  fail:
-    msg: "Required variable {{ item }} is not defined"
-  when: vars[item] is not defined or vars[item] == ""
+    msg: "Required environment variable {{ item }} is not defined or empty"
+  when: ansible_env[item] is not defined or ansible_env[item] == ""
   loop:
-    - my_full_name
-    - my_email_add
-    - my_mbp_is_for
-    - admin_dir
-    - known_hosts
+    - myFullName
+    - myEmailAdd
+    - myMBPisFor
+    - adminDir
 
 - name: Display validated configuration
   debug:
     msg: |
       Configuration validated:
-      - User: {{ my_full_name }}
-      - Email: {{ my_email_add }}  
-      - MBP Purpose: {{ my_mbp_is_for }}
-      - Admin Directory: {{ admin_dir }}
+      - User: {{ ansible_env.myFullName }}
+      - Email: {{ ansible_env.myEmailAdd }}
+      - MBP Purpose: {{ ansible_env.myMBPisFor }}
+      - Admin Directory: {{ ansible_env.adminDir }}
       - Environment: {{ env_mode }}
