@@ -73,7 +73,7 @@
     that:
       - homebrew_check.stat.exists
     fail_msg: "Fail: Homebrew is not installed. Please run install-prep.sh first."
-    success_msg: "Pass: Homebrew is installed at /opt/homebrew/bin/brew."
+    success_msg: "Pass: Homebrew is installed at {{ homebrew_check.stat.path }}."
 
 - name: Check Git binary
   ansible.builtin.stat:
@@ -85,4 +85,4 @@
     that:
       - git_check.stat.exists
     fail_msg: "Fail: Git is not installed. Please run install-prep.sh first."
-    success_msg: "Pass: Git is installed at /usr/bin/git."
+    success_msg: "Pass: Git is installed at {{ git_check.stat.path }}."
