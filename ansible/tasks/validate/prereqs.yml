@@ -1,9 +1,10 @@
+---
 # Pre-flight validation tasks. If these steps fail there's no reason to continue.
-# Each task with either:
+# Each task will either:
 #   - Succeed, print a success_msg and move to the next task, or
 #   - Fail, print a fail_msg and exit.
 # IF this completes, then we are ready for the next step.
----
+
 - name: Validate running on macOS
   assert:
     that:
@@ -18,14 +19,13 @@
       - ansible_env[item] != ""
     fail_msg: "Fail: Required environment variable {{ item }} is not defined or empty."
     success_msg: "Pass: Environment variable {{ item }} = {{ ansible_env[item] }}."
-
   loop:
     - myFullName
     - myEmailAdd
     - myMBPisFor
     - adminDir
 
-# File/Directory existence validations using assert pattern
+# File/Directory existence validations
 - name: Check admin directory
   ansible.builtin.stat:
     path: "{{ ansible_env.adminDir }}"
@@ -36,7 +36,7 @@
     that:
       - admin_dir_check.stat.exists
     fail_msg: "Fail: Admin directory {{ ansible_env.adminDir }} does not exist. Please run install-prep.sh first."
-    success_msg: "Pass: Admin directory found at {{ ansible_env.adminDir }}."
+    success_msg: "Pass: Admin directory found at {{ admin_dir_check.stat.path }}."
 
 - name: Check backup directory
   ansible.builtin.stat:
@@ -48,7 +48,7 @@
     that:
       - backup_dir_check.stat.exists
     fail_msg: "Fail: Backup directory {{ ansible_env.backup_dir }} does not exist. Please run install-prep.sh first."
-    success_msg: "Pass: Backup directory found at {{ ansible_env.backup_dir }}."
+    success_msg: "Pass: Backup directory found at {{ backup_dir_check.stat.path }}."
 
 - name: Check SSH known_hosts file
   ansible.builtin.stat:
@@ -60,7 +60,36 @@
     that:
       - known_hosts_check.stat.exists
     fail_msg: "Fail: SSH known_hosts file {{ ansible_env.knownHosts }} does not exist. Please ensure SSH is configured."
-    success_msg: "Pass: SSH known_hosts file found at {{ ansible_env.knownHosts }}."
+    success_msg: "Pass: SSH known_hosts file found at {{ known_hosts_check.stat.path }}."
+
+- name: Check GitHub SSH key in known_hosts
+  ansible.builtin.lineinfile:
+    path: "{{ ansible_env.knownHosts }}"
+    regexp: "^{{ ansible_env.host_remote }}"
+    state: absent
+  check_mode: yes
+  register: github_key_check
+  changed_when: false
+
+- name: Validate GitHub key in known_hosts
+  assert:
+    that:
+      - github_key_check.found
+    fail_msg: "Fail: GitHub key not found in {{ ansible_env.knownHosts }}. Please ensure SSH keys are configured."
+    success_msg: "Pass: GitHub key found in known_hosts."
+
+- name: Check solarized theme directory
+  ansible.builtin.stat:
+    path: "{{ ansible_env.termStuff }}/solarized"
+  register: solarized_check
+
+- name: Validate solarized theme exists
+  assert:
+    that:
+      - solarized_check.stat.exists
+      - solarized_check.stat.isdir
+    fail_msg: "Fail: Solarized theme not found at {{ ansible_env.termStuff }}/solarized. Please run terminal setup first."
+    success_msg: "Pass: Solarized theme found at {{ solarized_check.stat.path }}."
 
 # Command availability validations
 - name: Check Homebrew binary

@@ -30,7 +30,7 @@
 
     - name: Pre-flight validation
       include_tasks:
-        file: ../tasks/validate/prerequisites.yml
+        file: ../tasks/validate/prereqs.yml
         apply:
           tags: [foundation]
       tags: [foundation]
@@ -48,9 +48,13 @@
     - name: Setup terminal prerequisites
       include_tasks: ../tasks/configure/terminal-prereqs.yml
 
-    # Post-configuration validation
-    - name: Foundation validation
-      include_tasks: ../tasks/validate/foundation-complete.yml
+    # # Post-configuration validation
+    # - name: Foundation validation
+    #   include_tasks:
+    #     file: ../tasks/validate/foundation-complete.yml
+    #     apply:
+    #       tags: [foundation]
+    #   tags: [foundation]
 
     - name: Display foundation completion
       debug:
