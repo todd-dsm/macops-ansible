@@ -1,0 +1,15 @@
+---
+# Terminal setup - fonts, configurations
+# Corresponds to bootstrap.sh lines ~130-180
+- name: Terminal Setup
+  hosts: local
+  gather_facts: no
+  
+  tasks:
+    - name: Terminal setup placeholder
+      debug:
+        msg: "Terminal setup - to be implemented"
+    
+    # TODO: Implement font installation (Hack font)
+    # TODO: Implement Terminal profile configurations
+    # TODO: Implement Solarized theme setup

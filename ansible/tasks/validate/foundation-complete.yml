@@ -1,0 +1,51 @@
+---
+# Foundation completion validation
+- name: Verify GitHub key in known_hosts
+  lineinfile:
+    path: "{{ known_hosts }}"
+    regexp: "^{{ host_remote }}"
+    state: absent
+  check_mode: yes
+  register: final_github_key_check
+  changed_when: false
+
+- name: Validate GitHub key presence
+  assert:
+    that: final_github_key_check.found
+    fail_msg: "GitHub key not found in known_hosts file"
+    success_msg: "GitHub key properly configured in known_hosts"
+
+- name: Verify admin directory structure
+  stat:
+    path: "{{ item }}"
+  register: admin_dirs
+  loop:
+    - "{{ admin_dir }}"
+    - "{{ backup_dir }}"
+
+- name: Validate admin directories exist
+  assert:
+    that: item.stat.exists and item.stat.isdir
+    fail_msg: "Required admin directory {{ item.item }} not found"
+    success_msg: "Admin directory {{ item.item }} exists"
+  loop: "{{ admin_dirs.results }}"
+
+- name: Verify solarized theme download
+  stat:
+    path: "{{ term_stuff }}/solarized"
+  register: solarized_check
+
+- name: Validate solarized theme
+  assert:
+    that: solarized_check.stat.exists and solarized_check.stat.isdir
+    fail_msg: "Solarized theme not properly downloaded"
+    success_msg: "Solarized theme available for terminal configuration"
+
+- name: Foundation validation summary
+  debug:
+    msg: |
+      Foundation setup validation PASSED:
+      ✓ GitHub SSH key configured
+      ✓ Admin directory structure created  
+      ✓ Solarized theme downloaded
+      ✓ Ready for next phase: Terminal Setup

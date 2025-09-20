@@ -1,0 +1,28 @@
+---
+# SSH key management - corresponds to bootstrap.sh lines ~80-90
+- name: Check if GitHub key exists in known_hosts
+  lineinfile:
+    path: "{{ known_hosts }}"
+    regexp: "^{{ host_remote }}"
+    state: absent
+  check_mode: yes
+  register: github_key_check
+  changed_when: false
+
+- name: Display GitHub key status
+  debug:
+    msg: "{% if github_key_check.found %}We have the Github key, all good.{% else %}We don't have the GitHub key, pulling it now...{% endif %}"
+
+- name: Add GitHub public key to known_hosts
+  shell: ssh-keyscan -t 'rsa' "{{ host_remote }}" >> "{{ known_hosts }}"
+  when: not github_key_check.found
+
+- name: Verify GitHub key was added
+  lineinfile:
+    path: "{{ known_hosts }}"
+    regexp: "^{{ host_remote }}"
+    state: absent
+  check_mode: yes
+  register: github_key_verify
+  changed_when: false
+  failed_when: not github_key_verify.found

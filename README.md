@@ -2,6 +2,9 @@
 
 Replacement for the Bash hellscape that is [mac-ops].
 
+
+
+
 ## MCP Status
 
 `cursor-agent` is still too new to have any real support. Solve for these:

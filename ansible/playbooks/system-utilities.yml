@@ -1,0 +1,16 @@
+---
+# System utilities installation
+# Corresponds to bootstrap.sh lines ~190-280
+- name: System Utilities Installation
+  hosts: local
+  gather_facts: no
+  
+  tasks:
+    - name: System utilities placeholder
+      debug:
+        msg: "System utilities installation - to be implemented"
+    
+    # TODO: Install GUI applications (VirtualBox, Chrome, VS Code, etc.)
+    # TODO: Configure VirtualBox settings
+    # TODO: Install networking tools (nmap, rsync, etc.)
+    # TODO: Install system admin utilities

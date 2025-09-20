@@ -1,0 +1,28 @@
+---
+# System backups - corresponds to bootstrap.sh lines ~95-105
+- name: Display backup operation start
+  debug:
+    msg: "Backing up the /etc directory before we begin..."
+
+- name: Ensure backup directory exists
+  file:
+    path: "{{ backup_dir }}"
+    state: directory
+    mode: '0755'
+
+- name: Backup /etc directory for testing
+  shell: rsync -aE /private/etc "{{ backup_dir }}/"
+  register: backup_result
+  failed_when: backup_result.rc != 0
+  become: yes
+  ignore_errors: yes
+
+- name: Check for backup errors
+  debug:
+    msg: "Backup completed. Check /tmp/rsync-err-etc.out for any errors"
+  when: backup_result.rc == 0
+
+- name: Display backup failure warning
+  debug:
+    msg: "Warning: Backup operation had issues. Check system permissions."
+  when: backup_result.rc != 0

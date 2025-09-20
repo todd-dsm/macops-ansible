@@ -1,0 +1,59 @@
+---
+# Foundation setup - corresponds to bootstrap.sh lines ~30-120
+- name: Foundation Setup
+  hosts: local
+  gather_facts: yes
+  vars:
+    time_pre: "{{ ansible_date_time.time }}"
+    homebrew_no_env_hints: true
+
+  environment:
+    HOMEBREW_NO_ENV_HINTS: "{{ homebrew_no_env_hints }}"
+
+  tasks:
+    - name: Load variables from my-vars.env
+      parse_vars_env:
+        env_mode: "{{ env_mode | default('LIVE') }}"
+        vars_file: "my-vars.env"
+
+    - name: Display configuration start message
+      debug:
+        msg: |
+          Configuring this macOS for {{ my_full_name }}
+          Environment mode: {{ env_mode }}
+          Start time: {{ time_pre }}
+
+    - name: Show test warning if in TEST mode
+      debug:
+        msg: "THIS IS ONLY A TEST"
+      when: env_mode == "TEST"
+
+    - name: Show live confirmation if in LIVE mode
+      debug:
+        msg: "We are preparing to go live..."
+      when: env_mode != "TEST"
+
+    # Pre-flight validation
+    - name: Pre-flight validation
+      include_tasks: ../tasks/validate/prerequisites.yml
+
+    # SSH key management
+    - name: Configure SSH keys
+      include_tasks: ../tasks/configure/ssh-keys.yml
+
+    # System backups (conditional)
+    - name: Perform system backups
+      include_tasks: ../tasks/configure/system-backups.yml
+      when: env_mode == "TEST"
+
+    # Terminal setup prerequisites
+    - name: Setup terminal prerequisites
+      include_tasks: ../tasks/configure/terminal-prereqs.yml
+
+    # Post-configuration validation
+    - name: Foundation validation
+      include_tasks: ../tasks/validate/foundation-complete.yml
+
+    - name: Display foundation completion
+      debug:
+        msg: "Foundation setup completed successfully"

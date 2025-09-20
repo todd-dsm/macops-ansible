@@ -1,0 +1,20 @@
+---
+# Development tools installation
+# Corresponds to bootstrap.sh lines ~300-600
+- name: Development Tools Installation
+  hosts: local
+  gather_facts: no
+  
+  tasks:
+    - name: Development tools placeholder
+      debug:
+        msg: "Development tools installation - to be implemented"
+    
+    # TODO: Install Rust
+    # TODO: Install Go
+    # TODO: Install Node.js and npm
+    # TODO: Install Vim/Neovim with configurations
+    # TODO: Install AWS CLI and tools
+    # TODO: Install HashiCorp tools (Terraform, Packer)
+    # TODO: Install Docker and Kubernetes tools
+    # TODO: Install Google Cloud SDK

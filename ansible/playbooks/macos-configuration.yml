@@ -1,0 +1,19 @@
+---
+# macOS system configuration
+# Corresponds to bootstrap.sh lines ~700-850
+- name: macOS System Configuration
+  hosts: local
+  gather_facts: no
+  
+  tasks:
+    - name: macOS configuration placeholder
+      debug:
+        msg: "macOS system configuration - to be implemented"
+    
+    # TODO: Configure hostname settings
+    # TODO: Configure storage preferences
+    # TODO: Configure Finder preferences
+    # TODO: Configure Dock preferences
+    # TODO: Configure security settings
+    # TODO: Configure application preferences (TextEdit, etc.)
+    # TODO: Configure system defaults
