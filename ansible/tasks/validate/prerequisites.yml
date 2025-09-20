@@ -5,6 +5,11 @@
     msg: "This automation is designed for macOS only"
   when: ansible_os_family != "Darwin"
 
+- name: Display macOS validation success
+  debug:
+    msg: "✓ Running on macOS ({{ ansible_os_family }})"
+  when: ansible_os_family == "Darwin"
+
 - name: Check for required environment variables
   fail:
     msg: "Required environment variable {{ item }} is not defined or empty"
@@ -15,6 +20,94 @@
     - myMBPisFor
     - adminDir
 
+- name: Display environment variables success
+  debug:
+    msg: "✓ All required environment variables are defined"
+
+# File/Directory existence validations using stat pattern
+- name: Check if admin directory exists
+  ansible.builtin.stat:
+    path: "{{ ansible_env.adminDir }}"
+  register: admin_dir_check
+
+- name: Fail if admin directory missing
+  fail:
+    msg: "Admin directory {{ ansible_env.adminDir }} does not exist. Please run install-prep.sh first."
+  when: not admin_dir_check.stat.exists
+
+- name: Display admin directory success
+  debug:
+    msg: "✓ Admin directory found: {{ ansible_env.adminDir }}"
+  when: admin_dir_check.stat.exists
+
+- name: Check if backup directory exists
+  ansible.builtin.stat:
+    path: "{{ ansible_env.backup_dir }}"
+  register: backup_dir_check
+
+- name: Fail if backup directory missing
+  fail:
+    msg: "Backup directory {{ ansible_env.backup_dir }} does not exist. Please run install-prep.sh first."
+  when: not backup_dir_check.stat.exists
+
+- name: Display backup directory success
+  debug:
+    msg: "✓ Backup directory found: {{ ansible_env.backup_dir }}"
+  when: backup_dir_check.stat.exists
+
+- name: Check if SSH known_hosts file exists
+  ansible.builtin.stat:
+    path: "{{ ansible_env.knownHosts }}"
+  register: known_hosts_check
+
+- name: Fail if SSH known_hosts missing
+  fail:
+    msg: "SSH known_hosts file {{ ansible_env.knownHosts }} does not exist. Please ensure SSH is configured."
+  when: not known_hosts_check.stat.exists
+
+- name: Display SSH known_hosts success
+  debug:
+    msg: "✓ SSH known_hosts file found: {{ ansible_env.knownHosts }}"
+  when: known_hosts_check.stat.exists
+
+- name: Check if my-vars.env exists
+  ansible.builtin.stat:
+    path: "./my-vars.env"
+  register: vars_env_check
+
+# Command availability validations
+- name: Check if brew command is available
+  command: which brew
+  register: brew_check
+  failed_when: false
+  changed_when: false
+
+- name: Fail if Homebrew not installed
+  fail:
+    msg: "Homebrew is not installed. Please run install-prep.sh first."
+  when: brew_check.rc != 0
+
+- name: Display Homebrew success
+  debug:
+    msg: "✓ Homebrew found: {{ brew_check.stdout }}"
+  when: brew_check.rc == 0
+
+- name: Check if git command is available
+  command: which git
+  register: git_check
+  failed_when: false
+  changed_when: false
+
+- name: Fail if Git not installed
+  fail:
+    msg: "Git is not installed. Please run install-prep.sh first."
+  when: git_check.rc != 0
+
+- name: Display Git success
+  debug:
+    msg: "✓ Git found: {{ git_check.stdout }}"
+  when: git_check.rc == 0
+
 - name: Display validated configuration
   debug:
     msg: |
@@ -24,3 +117,4 @@
       - MBP Purpose: {{ ansible_env.myMBPisFor }}
       - Admin Directory: {{ ansible_env.adminDir }}
       - Environment: {{ env_mode }}
+      - Prerequisites: All checks passed ✓

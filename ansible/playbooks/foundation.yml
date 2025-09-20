@@ -28,9 +28,12 @@
         msg: "We are preparing to go live..."
       when: env_mode != "TEST"
 
-    # Pre-flight validation
     - name: Pre-flight validation
-      include_tasks: ../tasks/validate/prerequisites.yml
+      include_tasks:
+        file: ../tasks/validate/prerequisites.yml
+        apply:
+          tags: [foundation]
+      tags: [foundation]
 
     # SSH key management
     - name: Configure SSH keys
