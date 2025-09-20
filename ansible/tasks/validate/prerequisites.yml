@@ -1,5 +1,9 @@
+# Pre-flight validation tasks. If these steps fail there's no reason to continue.
+# Each task with either:
+#   - Succeed, print a success_msg and move to the next task, or
+#   - Fail, print a fail_msg and exit.
+# IF this completes, then we are ready for the next step.
 ---
-# Pre-flight validation tasks
 - name: Validate running on macOS
   assert:
     that:
