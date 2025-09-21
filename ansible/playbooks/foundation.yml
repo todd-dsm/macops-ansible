@@ -35,9 +35,13 @@
           tags: [foundation]
       tags: [foundation]
 
-    # SSH key management
+    # SSH key management (now with base tag)
     - name: Configure SSH keys
-      include_tasks: ../tasks/configure/ssh-keys.yml
+      include_tasks:
+        file: ../tasks/configure/ssh-keys.yml
+        apply:
+          tags: [base]
+      tags: [base]
 
     # System backups (conditional)
     - name: Perform system backups

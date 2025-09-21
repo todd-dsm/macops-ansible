@@ -1,28 +1,21 @@
+# SSH key management - simplified using Ansible's known_hosts module
+# File: ansible/tasks/configure/ssh-keys.yml
 ---
-# SSH key management - corresponds to bootstrap.sh lines ~80-90
-- name: Check if GitHub key exists in known_hosts
-  lineinfile:
-    path: "{{ ansible_env.knownHosts }}"
-    regexp: "^{{ ansible_env.host_remote }}"
-    state: absent
-  check_mode: yes
-  register: github_key_check
+- name: Scan GitHub SSH key
+  shell: ssh-keyscan -t rsa {{ ansible_env.host_remote }} | grep -v '^#'
+  register: github_key_scan
   changed_when: false
+
+- name: Add GitHub SSH key to known_hosts
+  ansible.builtin.known_hosts:
+    name: "{{ ansible_env.host_remote }}"
+    key: "{{ github_key_scan.stdout }}"
+    path: "{{ ansible_env.knownHosts }}"
+    state: present
+  register: github_key_result
+  tags: [base]
 
 - name: Display GitHub key status
   debug:
-    msg: "{% if github_key_check.found %}We have the Github key, all good.{% else %}We don't have the GitHub key, pulling it now...{% endif %}"
-
-- name: Add GitHub public key to known_hosts
-  shell: ssh-keyscan -t 'rsa' "{{ ansible_env.host_remote }}" >> "{{ ansible_env.knownHosts }}"
-  when: not github_key_check.found
-
-- name: Verify GitHub key was added
-  lineinfile:
-    path: "{{ ansible_env.knownHosts }}"
-    regexp: "^{{ ansible_env.host_remote }}"
-    state: absent
-  check_mode: yes
-  register: github_key_verify
-  changed_when: false
-  failed_when: not github_key_verify.found
+    msg: "GitHub SSH key {% if github_key_result.changed %}added to{% else %}already present in{% endif %} {{ ansible_env.knownHosts }}"
+  tags: [base]
