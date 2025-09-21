@@ -5,7 +5,7 @@
   community.general.homebrew:
     name: rust
     state: present
-  register: rust_install
+  register: app_install
 
 - name: Configure Rust system path
   ansible.builtin.lineinfile:
@@ -26,6 +26,6 @@
   debug:
     msg:
       - "Rust setup completed:"
-      - "  - Package: {% if rust_install.changed %}installed{% else %}already present{% endif %}"
+      - "  - Package: {% if app_install.changed %}installed{% else %}already present{% endif %}"
       - "  - System path: {% if sys_path.changed %}configured{% else %}already configured{% endif %}"
       - "  - Shell config: {% if env_config.changed %}deployed{% else %}already present{% endif %}"
