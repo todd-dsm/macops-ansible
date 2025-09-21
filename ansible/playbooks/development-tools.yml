@@ -1,15 +1,17 @@
----
 # Development tools installation
-# Corresponds to bootstrap.sh lines ~300-600
+---
 - name: Development Tools Installation
   hosts: local
   gather_facts: no
-  
+
   tasks:
-    - name: Development tools placeholder
-      debug:
-        msg: "Development tools installation - to be implemented"
-    
+    - name: Install Rust
+      include_role:
+        name: rust
+        apply:
+          tags: [rust, development-tools]
+      tags: [rust, development-tools]
+
     # TODO: Install Rust
     # TODO: Install Go
     # TODO: Install Node.js and npm
