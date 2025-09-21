@@ -26,9 +26,15 @@
           tags: [nodejs, development-tools]
       tags: [nodejs, development-tools]
 
-    # TODO: Install Node.js and npm
-    # TODO: Install Vim/Neovim with configurations
+    - name: Install AWS CLI
+      include_role:
+        name: awscli
+        apply:
+          tags: [awscli, development-tools]
+      tags: [awscli, development-tools]
+
     # TODO: Install AWS CLI and tools
     # TODO: Install HashiCorp tools (Terraform, Packer)
     # TODO: Install Docker and Kubernetes tools
     # TODO: Install Google Cloud SDK
+    # TODO: Install Vim/Neovim with configurations

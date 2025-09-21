@@ -1,0 +1,22 @@
+# Install and configure Rust programming language
+# File: roles/rust/tasks/main.yml
+---
+- name: Install AWS CLI
+  community.general.homebrew:
+    name: awscli
+    state: present
+  register: app_install
+
+- name: Copy AWS CLI environment configuration
+  ansible.builtin.copy:
+    src: aws.zsh
+    dest: "$HOME/.oh-my-zsh/custom/aws.zsh"
+    mode: '0644'
+  register: env_config
+
+- name: Display AWS CLI setup status
+  debug:
+    msg:
+      - "AWS CLI setup completed:"
+      - "  - Package: {% if app_install.changed %}installed{% else %}already present{% endif %}"
+      - "  - Shell config: {% if env_config.changed %}deployed{% else %}already present{% endif %}"
