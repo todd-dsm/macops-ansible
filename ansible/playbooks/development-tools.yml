@@ -19,7 +19,13 @@
           tags: [golang, development-tools]
       tags: [golang, development-tools]
 
-    # TODO: Install Go
+    - name: Install Node.js and npm
+      include_role:
+        name: nodejs
+        apply:
+          tags: [nodejs, development-tools]
+      tags: [nodejs, development-tools]
+
     # TODO: Install Node.js and npm
     # TODO: Install Vim/Neovim with configurations
     # TODO: Install AWS CLI and tools
