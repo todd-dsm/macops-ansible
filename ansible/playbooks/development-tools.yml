@@ -33,7 +33,14 @@
           tags: [awscli, development-tools]
       tags: [awscli, development-tools]
 
-    # TODO: Install AWS CLI and tools
+    - name: Install Terraform
+      include_role:
+        name: tfenv
+        apply:
+          tags: [tfenv, development-tools]
+      tags: [tfenv, development-tools]
+
+
     # TODO: Install HashiCorp tools (Terraform, Packer)
     # TODO: Install Docker and Kubernetes tools
     # TODO: Install Google Cloud SDK

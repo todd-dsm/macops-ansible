@@ -1,0 +1,88 @@
+# Install and configure Terraform via tfenv version manager
+# File: roles/terraform/tasks/main.yml
+---
+- name: Check if terraform is installed via Homebrew
+  ansible.builtin.command: brew list terraform
+  register: terraform_check
+  failed_when: false
+  changed_when: false
+
+- name: Unlink existing Homebrew terraform
+  community.general.homebrew:
+    name: terraform
+    state: unlinked
+  when: terraform_check.rc == 0
+  register: terraform_unlink
+
+- name: Uninstall existing Homebrew terraform
+  community.general.homebrew:
+    name: terraform
+    state: absent
+  when: terraform_check.rc == 0
+  register: terraform_uninstall
+
+- name: Install tfenv
+  community.general.homebrew:
+    name: tfenv
+    state: present
+  register: tfenv_install
+
+- name: Install latest Terraform version via tfenv (skip signature verification)
+  ansible.builtin.command: tfenv install latest
+  environment:
+    TFENV_SKIP_VERIFIES: "true"
+  register: tfenv_install_latest
+  changed_when: "'already installed' not in tfenv_install_latest.stdout"
+  become: yes
+
+- name: Set latest Terraform version as default
+  ansible.builtin.command: tfenv use latest
+  register: tfenv_use_latest
+  changed_when: true
+  become: yes
+
+- name: Get installed Terraform version
+  ansible.builtin.command: terraform version
+  register: terraform_version
+  changed_when: false
+
+- name: Install Terraform autocompletion
+  ansible.builtin.command: terraform -install-autocomplete
+  register: terraform_autocomplete
+  changed_when: "'already installed' not in terraform_autocomplete.stdout"
+  failed_when: false
+
+- name: Get terraform binary path for completion
+  ansible.builtin.command: which terraform
+  register: terraform_path
+  changed_when: false
+
+- name: Remove Terraform completion from .zshrc
+  ansible.builtin.lineinfile:
+    path: "{{ ansible_env.HOME }}/.zshrc"
+    regexp: '^complete -o nospace -C .*/terraform.*$'
+    state: absent
+
+- name: Copy Terraform environment configuration
+  ansible.builtin.copy:
+    src: terraform.zsh
+    dest: "$HOME/.oh-my-zsh/custom/terraform.zsh"
+    mode: '0644'
+  register: terraform_config
+
+- name: Update terraform completion paths in config file
+  ansible.builtin.replace:
+    path: "$HOME/.oh-my-zsh/custom/terraform.zsh"
+    regexp: 'TERRAFORM_PATH'
+    replace: "{{ terraform_path.stdout }}"
+  register: terraform_path_updated
+
+- name: Display Terraform setup status
+  debug:
+    msg: 
+      - "Terraform setup completed:"
+      - "  - Existing terraform: {% if terraform_check.rc == 0 %}removed{% else %}not found{% endif %}"
+      - "  - tfenv: {% if tfenv_install.changed %}installed{% else %}already present{% endif %}"
+      - "  - Latest terraform: {% if tfenv_install_latest.changed %}installed{% else %}already installed{% endif %}"
+      - "  - Active version: {{ terraform_version.stdout_lines[0] }}"
+      - "  - Shell config: {% if terraform_config.changed %}deployed{% else %}already present{% endif %}"
