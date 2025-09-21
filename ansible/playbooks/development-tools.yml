@@ -12,7 +12,13 @@
           tags: [rust, development-tools]
       tags: [rust, development-tools]
 
-    # TODO: Install Rust
+    - name: Install Golang
+      include_role:
+        name: golang
+        apply:
+          tags: [golang, development-tools]
+      tags: [golang, development-tools]
+
     # TODO: Install Go
     # TODO: Install Node.js and npm
     # TODO: Install Vim/Neovim with configurations
