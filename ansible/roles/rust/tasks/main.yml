@@ -11,7 +11,7 @@
   ansible.builtin.lineinfile:
     path: /etc/paths
     insertbefore: '^/usr/local/bin$'
-    line: '$HOME/.cargo/bin'
+    line: "{{ ansible_env.HOME }}/.cargo/bin"
   become: yes
   register: rust_path
 
