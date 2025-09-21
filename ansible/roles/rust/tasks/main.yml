@@ -13,19 +13,19 @@
     insertbefore: '^/usr/local/bin$'
     line: "{{ ansible_env.HOME }}/.cargo/bin"
   become: yes
-  register: rust_path
+  register: sys_path
 
 - name: Copy Rust environment configuration
   ansible.builtin.copy:
     src: rust.zsh
     dest: "$HOME/.oh-my-zsh/custom/rust.zsh"
     mode: '0644'
-  register: rust_config
+  register: env_config
 
 - name: Display Rust setup status
   debug:
     msg:
       - "Rust setup completed:"
       - "  - Package: {% if rust_install.changed %}installed{% else %}already present{% endif %}"
-      - "  - System path: {% if rust_path.changed %}configured{% else %}already configured{% endif %}"
-      - "  - Shell config: {% if rust_config.changed %}deployed{% else %}already present{% endif %}"
+      - "  - System path: {% if sys_path.changed %}configured{% else %}already configured{% endif %}"
+      - "  - Shell config: {% if env_config.changed %}deployed{% else %}already present{% endif %}"
