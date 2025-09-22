@@ -54,6 +54,12 @@
           tags: [vault, development-tools]
       tags: [vault, development-tools]
 
+    - name: Install Google Cloud SDK
+      include_role:
+        name: google-cloud-sdk
+        apply:
+          tags: [gcp, development-tools]
+      tags: [gcp, development-tools]
+
     # TODO: Install Docker and Kubernetes tools
-    # TODO: Install Google Cloud SDK
     # TODO: Install Vim/Neovim with configurations

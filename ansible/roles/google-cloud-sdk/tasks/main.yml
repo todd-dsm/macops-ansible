@@ -1,0 +1,21 @@
+# Install and configure Google Cloud SDK
+---
+- name: Install Google Cloud SDK
+  community.general.homebrew_cask:
+    name: google-cloud-sdk
+    state: present
+  register: app_install
+
+- name: Copy Google Cloud SDK environment configuration
+  ansible.builtin.copy:
+    src: gcp.zsh
+    dest: "$HOME/.oh-my-zsh/custom/gcp.zsh"
+    mode: '0644'
+  register: env_config
+
+- name: Display Google Cloud SDK setup status
+  debug:
+    msg:
+      - "Google Cloud SDK setup completed:"
+      - "  - Package: {% if app_install.changed %}installed{% else %}already present{% endif %}"
+      - "  - Shell config: {% if env_config.changed %}deployed{% else %}already present{% endif %}"
