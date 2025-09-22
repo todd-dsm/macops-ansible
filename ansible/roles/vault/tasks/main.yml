@@ -1,0 +1,21 @@
+# Install and configure HashiCorp Vault
+---
+- name: Install HashiCorp Vault
+  community.general.homebrew:
+    name: vault
+    state: present
+  register: app_install
+
+- name: Copy Vault environment configuration
+  ansible.builtin.copy:
+    src: vault.zsh
+    dest: "$HOME/.oh-my-zsh/custom/vault.zsh"
+    mode: '0644'
+  register: env_config
+
+- name: Display Vault setup status
+  debug:
+    msg:
+      - "Vault setup completed:"
+      - "  - Package: {% if app_install.changed %}installed{% else %}already present{% endif %}"
+      - "  - Shell config: {% if env_config.changed %}deployed{% else %}already present{% endif %}"

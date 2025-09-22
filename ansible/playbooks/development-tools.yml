@@ -26,26 +26,33 @@
           tags: [nodejs, development-tools]
       tags: [nodejs, development-tools]
 
-    - name: Install AWS CLI
+    - name: Install Amazon AWS CLI
       include_role:
         name: awscli
         apply:
           tags: [awscli, development-tools]
       tags: [awscli, development-tools]
 
-    - name: Install Terraform
+    - name: Install HashiCorp Terraform via tfenv
       include_role:
         name: tfenv
         apply:
           tags: [tfenv, development-tools]
       tags: [tfenv, development-tools]
 
-    - name: Install Packer
+    - name: Install HashiCorp Packer
       include_role:
         name: packer
         apply:
           tags: [packer, development-tools]
       tags: [packer, development-tools]
+
+    - name: Install HashiCorp Vault
+      include_role:
+        name: vault
+        apply:
+          tags: [vault, development-tools]
+      tags: [vault, development-tools]
 
     # TODO: Install Docker and Kubernetes tools
     # TODO: Install Google Cloud SDK
