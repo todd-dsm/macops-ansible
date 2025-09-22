@@ -1,0 +1,61 @@
+---
+# GUI Applications installation
+- name: Install Homebrew font tap
+  community.general.homebrew_tap:
+    name: homebrew/cask-fonts
+    state: present
+  register: font_tap
+
+- name: Install Hack font
+  community.general.homebrew_cask:
+    name: font-hack
+    state: present
+  register: hack_font
+
+- name: Install GUI applications via Homebrew cask
+  community.general.homebrew_cask:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - google-chrome
+    - cursor
+    - intellij-idea-ce
+    - virtualbox
+    - virtualbox-extension-pack
+    - wireshark
+  register: gui_apps
+
+- name: Create VirtualBox VM directory
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/vms/vbox"
+    state: directory
+    mode: '0755'
+  register: vbox_dir
+
+- name: Configure VirtualBox machine folder
+  ansible.builtin.command:
+    cmd: vboxmanage setproperty machinefolder "{{ ansible_env.HOME }}/vms/vbox"
+  register: vbox_config
+  changed_when: true
+
+- name: Deploy VirtualBox environment configuration
+  ansible.builtin.copy:
+    content: |
+      ###############################################################################
+      ###                                VirtualBox                               ###
+      ###############################################################################
+      export VBOX_USER_HOME="$HOME/vms/vbox"
+    dest: "{{ ansible_env.HOME }}/.oh-my-zsh/custom/virtualbox.zsh"
+    mode: '0644'
+  register: vbox_env_config
+
+- name: Display GUI applications installation status
+  debug:
+    msg:
+      - "GUI Applications installation completed:"
+      - "  - Font tap: {% if font_tap.changed %}added{% else %}already present{% endif %}"
+      - "  - Hack font: {% if hack_font.changed %}installed{% else %}already present{% endif %}"
+      - "  - GUI applications: {% if gui_apps.changed %}installed{% else %}already present{% endif %}"
+      - "  - VirtualBox directory: {% if vbox_dir.changed %}created{% else %}already exists{% endif %}"
+      - "  - VirtualBox config: {% if vbox_config.changed %}configured{% else %}already configured{% endif %}"
+      - "  - VirtualBox environment: {% if vbox_env_config.changed %}deployed{% else %}already present{% endif %}"
