@@ -4,12 +4,15 @@
 - name: macOS System Configuration
   hosts: local
   gather_facts: no
-  
+
   tasks:
-    - name: macOS configuration placeholder
-      debug:
-        msg: "macOS system configuration - to be implemented"
-    
+    - name: Configure macOS system preferences
+      include_role:
+        name: macos
+        apply:
+          tags: [macos, configuration]
+      tags: [macos, configuration]
+
     # TODO: Configure hostname settings
     # TODO: Configure storage preferences
     # TODO: Configure Finder preferences
