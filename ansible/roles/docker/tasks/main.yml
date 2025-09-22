@@ -1,0 +1,21 @@
+# Install and configure Docker Desktop
+---
+- name: Installing Docker Desktop
+  community.general.homebrew:
+    name: docker-desktop
+    state: present
+  register: app_install
+
+- name: Copy Docker Desktop environment configuration
+  ansible.builtin.copy:
+    src: docker.zsh
+    dest: "$HOME/.oh-my-zsh/custom/docker.zsh"
+    mode: '0644'
+  register: env_config
+
+- name: Display Docker Desktop setup status
+  debug:
+    msg:
+      - "Docker Desktop setup completed:"
+      - "  - Package: {% if app_install.changed %}installed{% else %}already present{% endif %}"
+      - "  - Shell config: {% if env_config.changed %}deployed{% else %}already present{% endif %}"
