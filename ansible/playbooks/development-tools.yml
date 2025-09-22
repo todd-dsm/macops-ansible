@@ -40,8 +40,13 @@
           tags: [tfenv, development-tools]
       tags: [tfenv, development-tools]
 
+    - name: Install Packer
+      include_role:
+        name: packer
+        apply:
+          tags: [packer, development-tools]
+      tags: [packer, development-tools]
 
-    # TODO: Install HashiCorp tools (Terraform, Packer)
     # TODO: Install Docker and Kubernetes tools
     # TODO: Install Google Cloud SDK
     # TODO: Install Vim/Neovim with configurations
