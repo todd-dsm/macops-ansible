@@ -1,6 +1,4 @@
-# Development tools installation; TODO:
-#  * Install Vim/Neovim with configurations
-#  * Install Python with configurations
+# Development tools installation
 ---
 - name: Development Tools Installation
   hosts: local
