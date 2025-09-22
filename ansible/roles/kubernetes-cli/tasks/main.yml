@@ -1,0 +1,21 @@
+# Install and configure HashiCorp Packer
+---
+- name: Install Kubernetes CLI
+  community.general.homebrew:
+    name: kubernetes-cli
+    state: present
+  register: app_install
+
+- name: Copy Kubernetes CLI environment configuration
+  ansible.builtin.copy:
+    src: kubernetes.zsh
+    dest: "$HOME/.oh-my-zsh/custom/kubernetes.zsh"
+    mode: '0644'
+  register: env_config
+
+- name: Display Kubernetes CLI setup status
+  debug:
+    msg:
+      - "Kubernetes CLI setup completed:"
+      - "  - Package: {% if app_install.changed %}installed{% else %}already present{% endif %}"
+      - "  - Shell config: {% if env_config.changed %}deployed{% else %}already present{% endif %}"

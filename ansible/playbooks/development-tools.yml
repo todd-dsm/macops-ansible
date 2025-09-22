@@ -68,13 +68,13 @@
           tags: [docker, development-tools]
       tags: [docker, development-tools]
 
-    - name: Kubernetes tools
+    - name: Kubernetes CLI
       include_role:
         name: kubernetes-cli
         apply:
           tags: [kubes, development-tools]
       tags: [kubes, development-tools]
 
-    # TODO: Install Kubernetes tools
+
     # TODO: Install Vim/Neovim with configurations
     # TODO: Install Python with configurations
