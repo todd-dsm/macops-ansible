@@ -4,12 +4,11 @@
 - name: Applications Configuration
   hosts: local
   gather_facts: no
-  
+
   tasks:
-    - name: Applications placeholder
-      debug:
-        msg: "Applications configuration - to be implemented"
-    
-    # TODO: Vim configuration and plugin setup
-    # TODO: Neovim post-install configurations
-    # TODO: Additional application-specific configurations
+    - name: Install GUI applications
+      include_role:
+        name: gui-apps
+        apply:
+          tags: [gui, applications]
+      tags: [gui, applications]

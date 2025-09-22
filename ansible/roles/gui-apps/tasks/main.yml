@@ -1,0 +1,32 @@
+---
+# GUI Applications installation
+- name: Install Homebrew font tap
+  community.general.homebrew_tap:
+    name: homebrew/cask-fonts
+    state: present
+  register: font_tap
+
+- name: Install Hack font
+  community.general.homebrew_cask:
+    name: font-hack
+    state: present
+  register: font_hack
+
+- name: Install GUI applications via Homebrew cask
+  community.general.homebrew_cask:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - google-chrome
+    - cursor
+    - intellij-idea-ce
+    - wireshark
+  register: gui_apps
+
+- name: Display GUI applications installation status
+  debug:
+    msg:
+      - "GUI Applications installation completed:"
+      - "  - Font tap: {% if font_tap.changed %}added{% else %}already present{% endif %}"
+      - "  - Hack font: {% if font_hack.changed %}installed{% else %}already present{% endif %}"
+      - "  - GUI applications: {% if gui_apps.changed %}installed{% else %}already present{% endif %}"
