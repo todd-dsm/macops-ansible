@@ -18,8 +18,10 @@
     state: present
   loop:
     - google-chrome
+    - firefox
+    - obsidian
+    - postman
     - cursor
-    - intellij-idea-ce
     - wireshark
   register: gui_apps
 
