@@ -57,5 +57,3 @@
       - "  - Network utilities: {% if network_utils.changed %}installed{% else %}already present{% endif %}"
       - "  - Build utilities: {% if build_utils.changed %}installed{% else %}already present{% endif %}"
       - "  - LibreSSL path: {% if libressl_path.changed %}added{% else %}already present{% endif %}"
-      - "  - Go bins directory: {% if go_bins_dir.changed %}created{% else %}already exists{% endif %}"
-      - "  - Go bins path: {% if go_bins_path.changed %}added{% else %}already present{% endif %}"
