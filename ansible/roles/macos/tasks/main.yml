@@ -123,10 +123,10 @@
     type: "{{ item.type }}"
     value: "{{ item.value }}"
   loop:
-    - { key: "tilesize", type: "int", value: 42 }
+    - { key: "tilesize", type: "float", value: 42.0 }
     - { key: "autohide", type: "bool", value: true }
-    - { key: "autohide-delay", type: "float", value: 0 }
-    - { key: "autohide-time-modifier", type: "float", value: 0 }
+    - { key: "autohide-delay", type: "float", value: 0.0 }
+    - { key: "autohide-time-modifier", type: "float", value: 0.0 }
   register: dock_prefs
 
 - name: Configure security settings
@@ -166,8 +166,8 @@
   loop:
     - { key: "author", type: "string", value: "{{ ansible_env.myFullName }}" }
     - { key: "RichText", type: "int", value: 0 }
-    - { key: "NSFixedPitchFont", type: "string", value: "Courier" }
-    - { key: "NSFixedPitchFontSize", type: "int", value: 14 }
+    - { key: "NSFixedPitchFont", type: "string", value: "Hack Regular" }
+    - { key: "NSFixedPitchFontSize", type: "string", value: 14 }
     - { key: "WidthInChars", type: "int", value: 100 }
     - { key: "HeightInChars", type: "int", value: 45 }
     - { key: "SmartDashes", type: "int", value: 0 }
