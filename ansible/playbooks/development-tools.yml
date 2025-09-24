@@ -1,7 +1,7 @@
 # Development tools installation
 ---
 - name: Development Tools Installation
-  hosts: local
+  hosts: remote_macos
   gather_facts: no
 
   tasks:

@@ -1,7 +1,7 @@
+# Terminal prerequisites
 ---
-# Terminal prerequisites - corresponds to bootstrap.sh lines ~110-120
 - name: Terminal Setup
-  hosts: local
+  hosts: remote_macos
   gather_facts: no
 
   tasks:

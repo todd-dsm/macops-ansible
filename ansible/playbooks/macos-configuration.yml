@@ -1,8 +1,7 @@
----
 # macOS system configuration
-# Corresponds to bootstrap.sh lines ~700-850
+---
 - name: macOS System Configuration
-  hosts: local
+  hosts: remote_macos
   gather_facts: no
 
   tasks:

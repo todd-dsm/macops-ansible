@@ -1,7 +1,7 @@
+# Foundational setup
 ---
-# Foundation setup - corresponds to bootstrap.sh lines ~30-120
 - name: Foundation Setup
-  hosts: local
+  hosts: remote_macos
   gather_facts: yes
   vars:
     time_pre: "{{ ansible_date_time.time }}"

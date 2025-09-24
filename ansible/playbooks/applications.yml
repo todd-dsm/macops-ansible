@@ -1,8 +1,7 @@
----
 # Additional applications and configurations
-# Corresponds to bootstrap.sh specialized application setups
+---
 - name: Applications Configuration
-  hosts: local
+  hosts: remote_macos
   gather_facts: no
 
   tasks:
