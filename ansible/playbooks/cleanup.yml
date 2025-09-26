@@ -1,7 +1,7 @@
 # Cleanup and final configuration
 ---
 - name: Cleanup and Final Configuration
-  hosts: remote_macos
+  hosts: local
   gather_facts: no
   
   tasks:

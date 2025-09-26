@@ -1,7 +1,7 @@
 # System utilities installation
 ---
 - name: System Utilities Installation
-  hosts: remote_macos
+  hosts: local
   gather_facts: no
 
   tasks:

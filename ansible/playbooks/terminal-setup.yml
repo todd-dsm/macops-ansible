@@ -1,7 +1,7 @@
 # Terminal prerequisites
 ---
 - name: Terminal Setup
-  hosts: remote_macos
+  hosts: local
   gather_facts: no
 
   tasks:

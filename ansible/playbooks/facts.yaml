@@ -1,7 +1,7 @@
 # Standalone facts collection playbook
 ---
 - name: System Facts Collection
-  hosts: remote_macos
+  hosts: local
   gather_facts: yes
   
   tasks:

@@ -1,7 +1,7 @@
 # Foundational setup
 ---
 - name: Foundation Setup
-  hosts: remote_macos
+  hosts: local
   gather_facts: yes
   vars:
     time_pre: "{{ ansible_date_time.time }}"

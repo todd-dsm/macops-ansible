@@ -1,7 +1,7 @@
 # macOS system configuration
 ---
 - name: macOS System Configuration
-  hosts: remote_macos
+  hosts: local
   gather_facts: no
 
   tasks:
