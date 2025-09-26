@@ -77,7 +77,7 @@
 
     - name: Kubernetes CLI
       include_role:
-        name: kubernetes-cli
+        name: kubernetes
         apply:
           tags: [kubes, development-tools]
       tags: [kubes, development-tools]

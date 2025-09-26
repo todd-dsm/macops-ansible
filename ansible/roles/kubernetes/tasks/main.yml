@@ -1,0 +1,130 @@
+# Install and configure Kubernetes CLI with ktx
+# File: roles/kubernetes/tasks/main.yml
+---
+# -----------------------------------------------------------------------------
+# Kubernetes Core Tools
+# -----------------------------------------------------------------------------
+- name: Install core Kubernetes tools
+  community.general.homebrew:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - kubernetes-cli
+    - helm
+    - minikube
+    - k9s
+    - eksctl
+    - kubectx
+    - stern
+    - kustomize
+    - popeye
+  register: k8s_core_tools
+
+- name: Copy Kubernetes Core Tools environment configuration
+  ansible.builtin.copy:
+    src: kubernetes.zsh
+    dest: "$HOME/.oh-my-zsh/custom/kubernetes.zsh"
+    mode: '0644'
+  register: env_config
+
+- name: Configuring Minikube default settings
+  ansible.builtin.shell: |
+    minikube config set cpus 2
+    minikube config set memory 4096
+    minikube config set driver docker
+    minikube config set WantVirtualBoxDriverWarning false
+  register: minikube_config
+  changed_when: false
+
+# -----------------------------------------------------------------------------
+# Service Mesh Tools
+# -----------------------------------------------------------------------------
+- name: Install service mesh tools
+  community.general.homebrew:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - istioctl
+    - linkerd
+    - cilium-cli
+  register: k8s_mesh_tools  
+
+# -----------------------------------------------------------------------------
+# GitOps Tools
+# -----------------------------------------------------------------------------
+- name: Install GitOps tools
+  community.general.homebrew:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - flux
+    - argocd
+  register: k8s_gitops_tools
+
+# -----------------------------------------------------------------------------
+# Krew Plugin Manager
+# -----------------------------------------------------------------------------
+- name: Install Krew plugin manager
+  community.general.homebrew:
+    name: krew
+    state: present
+  register: krew_install
+
+# -----------------------------------------------------------------------------
+# Krew Plugins
+# -----------------------------------------------------------------------------
+# - name: Install Krew Plugins
+#   ansible.builtin.shell: kubectl krew install {{ item }}
+#   loop:
+#     - whoami
+#     - kubectl-who-can
+#     - whoami
+#     - tree
+#     - ssh
+#   register: k8s_krew_plugins
+
+# -----------------------------------------------------------------------------
+# ktx
+# -----------------------------------------------------------------------------
+- name: Clone ktx repository
+  ansible.builtin.git:
+    repo: https://github.com/heptiolabs/ktx
+    dest: /tmp/ktx
+    force: yes
+  register: ktx_clone
+
+- name: Install ktx bash function
+  ansible.builtin.copy:
+    src: /tmp/ktx/ktx
+    dest: "{{ ansible_env.HOME }}/.ktx"
+    mode: '0755'
+    remote_src: yes
+  register: ktx_install
+
+- name: Install ktx completion
+  ansible.builtin.copy:
+    src: /tmp/ktx/ktx-completion.sh
+    dest: "{{ ansible_env.HOME }}/.ktx-completion.sh"
+    mode: '0644'
+    remote_src: yes
+  register: ktx_completion
+
+- name: Clean up ktx temporary directory
+  ansible.builtin.file:
+    path: /tmp/ktx
+    state: absent
+
+- name: Display Kubernetes CLI setup status
+  debug:
+    msg:
+      - "Kubernetes CLI setup completed:"
+      - "  - Kubernetes Core Tools: {% if k8s_core_tools.changed %}installed{% else %}already present{% endif %}"
+      - "  - Shell config: {% if env_config.changed %}deployed{% else %}already present{% endif %}"
+      - "  - Kubernetes Service Mesh Tools: {% if k8s_mesh_tools.changed %}installed{% else %}already present{% endif %}"
+      - "  - Kubernetes GitOps Tools: {% if k8s_gitops_tools.changed %}installed{% else %}already present{% endif %}"
+      - "  - Krew plugin manager: {% if krew_install.changed %}installed{% else %}already present{% endif %}"
+      - "  - Krew Plugins: {% if k8s_krew_plugins.changed %}installed{% else %}already present{% endif %}"
+      - "  - Minikube default settings: {% if minikube_config.changed %}configured{% else %}already present{% endif %}"
+      - "  - ktx function: {% if ktx_install.changed %}installed{% else %}already present{% endif %}"
+      - "  - ktx completion: {% if ktx_completion.changed %}installed{% else %}already present{% endif %}"
+
