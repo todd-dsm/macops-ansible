@@ -43,7 +43,7 @@
   register: terraform_version
   changed_when: false
 
-- name: Check if terraform plugin already exists
+- name: Check if OMZSH/Terraform plugin already configured
   ansible.builtin.lineinfile:
     path: "{{ ansible_env.HOME }}/.zshrc"
     regexp: '^plugins=.*terraform.*'
@@ -52,7 +52,7 @@
   register: terraform_plugin_check
   changed_when: false
 
-- name: Add terraform plugin to Oh My ZSH plugins list
+- name: Add OMZSH terraform plugin to ~/.zshrc plugins
   ansible.builtin.lineinfile:
     path: "{{ ansible_env.HOME }}/.zshrc"
     regexp: '^plugins=\((.*)\)$'
@@ -75,4 +75,5 @@
       - "  - tfenv: {% if tfenv_install.changed %}installed{% else %}already present{% endif %}"
       - "  - Latest terraform: {% if tfenv_install_latest.changed %}installed{% else %}already installed{% endif %}"
       - "  - Active version: {{ terraform_version.stdout_lines[0] }}"
+      - "  - OMZSH/Terraform plugin: {% if terraform_plugin_check.changed %}configured{% else %}already present{% endif %}"
       - "  - Shell config: {% if terraform_config.changed %}deployed{% else %}already present{% endif %}"
