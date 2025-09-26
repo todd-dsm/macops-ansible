@@ -1,0 +1,13 @@
+# Standalone facts collection playbook
+---
+- name: System Facts Collection
+  hosts: remote_macos
+  gather_facts: yes
+  
+  tasks:
+    - name: Collect system facts
+      include_role:
+        name: facts
+        apply:
+          tags: [facts, reporting]
+      tags: [facts, reporting]

@@ -11,11 +11,3 @@
         apply:
           tags: [macos, configuration]
       tags: [macos, configuration]
-
-    # TODO: Configure hostname settings
-    # TODO: Configure storage preferences
-    # TODO: Configure Finder preferences
-    # TODO: Configure Dock preferences
-    # TODO: Configure security settings
-    # TODO: Configure application preferences (TextEdit, etc.)
-    # TODO: Configure system defaults

@@ -60,6 +60,25 @@
     #       tags: [foundation]
     #   tags: [foundation]
 
+    # Facts collection at the end
+    - name: Ensure admin logs directory exists
+      ansible.builtin.file:
+        path: "{{ ansible_env.adminLogs }}"
+        state: directory
+        mode: '0755'
+
+    - name: Save system facts to JSON file
+      ansible.builtin.copy:
+        content: "{{ ansible_facts | to_nice_json }}"
+        dest: "{{ ansible_env.adminLogs }}/facts-{{ inventory_hostname }}.json"
+        mode: '0644'
+      register: facts_saved
+
+    - name: Display facts report location
+      debug:
+        msg: "System facts saved to {{ ansible_env.adminLogs }}/facts-{{ inventory_hostname }}.json"
+
+    # Confirm Success
     - name: Display foundation completion
       debug:
         msg: "Foundation setup completed successfully"
