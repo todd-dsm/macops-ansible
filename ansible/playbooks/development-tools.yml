@@ -68,6 +68,13 @@
           tags: [docker, development-tools]
       tags: [docker, development-tools]
 
+    - name: Containerization tools
+      include_role:
+        name: containers
+        apply:
+          tags: [containers, development-tools]
+      tags: [containers, development-tools]
+
     - name: Kubernetes CLI
       include_role:
         name: kubernetes-cli
