@@ -1,0 +1,72 @@
+---
+# Cleanup and final system maintenance
+# Post-installation logging, cleanup, and reporting
+- name: Ensure admin logs directory exists
+  ansible.builtin.file:
+    path: "{{ ansible_env.adminLogs }}"
+    state: directory
+    mode: '0755'
+
+- name: Save post-install application inventory
+  ansible.builtin.shell: "{{ item.command }} > {{ ansible_env.adminLogs }}/{{ item.file }}"
+  loop:
+    - { command: "pkgutil --pkgs", file: "apps-pkgutil-post-install.log" }
+    - { command: "find /Applications -maxdepth 1 -type d -print | sed 's|/Applications/||'", file: "apps-find-all-post-install.log" }
+    - { command: "find /Applications -maxdepth 4 -path '*Contents/_MASReceipt/receipt' -print | sed 's|.app/Contents/_MASReceipt/receipt|.app|g; s|/Applications/||'", file: "apps-paid-post-install.log" }
+    - { command: "brew leaves", file: "apps-homebrew-post-install.log" }
+    - { command: "pip3 list", file: "libs-pip3-post-install.log" }
+    - { command: "find {{ ansible_env.HOME }} -maxdepth 1 \\( -type d -o -type l \\) -name '.*' | sed 's|^{{ ansible_env.HOME }}/||'", file: "apps-home-dot-dirs-post-install.log" }
+  register: app_inventory
+  changed_when: false
+
+- name: Display inventory logging status
+  debug:
+    msg: "Post-install application inventory saved to {{ ansible_env.adminLogs }}/"
+
+- name: Run Homebrew cleanup
+  ansible.builtin.command: brew cleanup
+  register: brew_cleanup_result
+  changed_when: brew_cleanup_result.rc == 0
+
+- name: Find SSH private keys
+  ansible.builtin.find:
+    paths: "{{ ansible_env.HOME }}/.ssh"
+    patterns: 
+      - "id_*"
+      - "*_rsa"
+      - "*_ed25519"
+      - "*_ecdsa"
+    excludes:
+      - "*.pub"
+      - "known_hosts*"
+      - "config"
+  register: ssh_private_keys
+
+- name: Verify SSH private key permissions
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    mode: '0600'
+  loop: "{{ ssh_private_keys.files }}"
+  register: ssh_permissions_fixed
+  when: ssh_private_keys.files | length > 0
+
+- name: Calculate automation duration
+  set_fact:
+    automation_end: "{{ ansible_date_time.epoch }}"
+    automation_duration: "{{ ((ansible_date_time.epoch | int) - (automation_start | int)) }}"
+
+- name: Convert duration to human readable format
+  set_fact:
+    duration_hours: "{{ (automation_duration | int // 3600) }}"
+    duration_minutes: "{{ ((automation_duration | int % 3600) // 60) }}"
+    duration_seconds: "{{ (automation_duration | int % 60) }}"
+
+- name: Display cleanup and automation summary
+  debug:
+    msg:
+      - "=== AUTOMATION COMPLETED ==="
+      - "  - Post-install inventory: {% if inventory_logs.changed %}saved{% else %}already current{% endif %}"
+      - "  - Homebrew cleanup: {% if brew_cleanup_result.changed %}completed{% else %}no cleanup needed{% endif %}"
+      - "  - SSH key permissions: {% if ssh_permissions_fixed.changed %}{{ ssh_permissions_fixed.results | selectattr('changed') | list | length }} keys fixed{% else %}all keys properly secured{% endif %}"
+      - "  - Total automation time: {{ duration_hours }}h {{ duration_minutes }}m {{ duration_seconds }}s"
+      - "  - Logs saved to: {{ ansible_env.adminLogs }}"
