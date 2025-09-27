@@ -110,7 +110,7 @@
 - name: Validate GitHub key in known_hosts
   assert:
     that:
-      - github_key_check.found
+      - github_key_check.found | bool
     fail_msg: "Fail: GitHub key not found in {{ ansible_env.knownHosts }}. Please ensure SSH keys are configured."
     success_msg: "Pass: GitHub key found in known_hosts."
 
