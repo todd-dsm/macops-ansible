@@ -31,12 +31,10 @@
     TFENV_SKIP_VERIFIES: "true"
   register: tfenv_install_latest
   changed_when: "'already installed' not in tfenv_install_latest.stdout"
-  become: yes
 
 - name: Set latest Terraform version as default
   ansible.builtin.command: tfenv use latest
   changed_when: true
-  become: yes
 
 - name: Get installed Terraform version
   ansible.builtin.command: terraform version
