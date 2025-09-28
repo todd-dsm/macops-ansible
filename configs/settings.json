@@ -71,5 +71,5 @@
   "editor.guides.indentation": true,
   "editor.formatOnType": false,
   "go.toolsManagement.autoUpdate": true,
-  "workbench.colorCustomizations": {},
+  "workbench.colorCustomizations": {}
 }
