@@ -10,11 +10,12 @@
     state: directory
     mode: '0755'
 
-- name: Clone Solarized terminal theme
-  git:
+# Example: Simplified git operations
+- name: Clone repository
+  ansible.builtin.git:
     repo: "{{ ansible_env.solarizedGitRepo }}"
     dest: "{{ ansible_env.termStuff }}/solarized"
-    clone: yes
+    accept_hostkey: yes  # Automatically handles SSH keys
     update: yes
   register: solarized_clone
 
