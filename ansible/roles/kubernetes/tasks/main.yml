@@ -47,7 +47,7 @@
     - istioctl
     - linkerd
     - cilium-cli
-  register: k8s_mesh_tools  
+  register: k8s_mesh_tools
 
 # -----------------------------------------------------------------------------
 # GitOps Tools
@@ -123,8 +123,7 @@
       - "  - Kubernetes Service Mesh Tools: {% if k8s_mesh_tools.changed %}installed{% else %}already present{% endif %}"
       - "  - Kubernetes GitOps Tools: {% if k8s_gitops_tools.changed %}installed{% else %}already present{% endif %}"
       - "  - Krew plugin manager: {% if krew_install.changed %}installed{% else %}already present{% endif %}"
-      - "  - Krew Plugins: {% if k8s_krew_plugins.changed %}installed{% else %}already present{% endif %}"
+      # - "  - Krew Plugins: {% if k8s_krew_plugins.changed %}installed{% else %}already present{% endif %}"
       - "  - Minikube default settings: {% if minikube_config.changed %}configured{% else %}already present{% endif %}"
       - "  - ktx function: {% if ktx_install.changed %}installed{% else %}already present{% endif %}"
       - "  - ktx completion: {% if ktx_completion.changed %}installed{% else %}already present{% endif %}"
-
