@@ -1,8 +1,14 @@
 # Install and configure HashiCorp Vault
 ---
-- name: Install HashiCorp Vault
+- name: Add HashiCorp tap
+  community.general.homebrew_tap:
+    name: hashicorp/tap
+    state: present
+  register: hashicorp_tap
+
+- name: Install HashiCorp Packer
   community.general.homebrew:
-    name: vault
+    name: hashicorp/tap/vault
     state: present
   register: app_install
 

@@ -2,8 +2,8 @@
 #                                   Vault                                     #
 # --------------------------------------------------------------------------- #
 complete -o nospace -C /opt/homebrew/bin/vault vault
-export VAULT_ADDR='http://localhost:8200'	  # INIT
-export VAULT_SKIP_VERIFY=true                 # INIT
+export VAULT_ADDR='http://localhost:8200'    # INIT
+export VAULT_SKIP_VERIFY=true                # INIT
 #export VAULT_NAMESPACE='admin'
 #export VAULT_CLI_NO_COLOR=0
 #export VAULT_CLUSTER_ADDR="https://127.0.0.1:8201"
