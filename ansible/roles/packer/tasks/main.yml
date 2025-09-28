@@ -1,10 +1,16 @@
 # Install and configure HashiCorp Packer
 ---
-# - name: Install HashiCorp Packer
-#   community.general.homebrew:
-#     name: packer
-#     state: present
-#   register: app_install
+- name: Add HashiCorp tap
+  community.general.homebrew_tap:
+    name: hashicorp/tap
+    state: present
+  register: hashicorp_tap
+
+- name: Install HashiCorp Packer
+  community.general.homebrew:
+    name: hashicorp/tap/packer
+    state: present
+  register: app_install
 
 - name: Copy Packer environment configuration
   ansible.builtin.copy:
