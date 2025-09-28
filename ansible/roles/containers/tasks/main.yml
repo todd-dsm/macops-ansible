@@ -1,12 +1,12 @@
 # Install and configure containerization tools
 ---
-- name: Install Containers
+- name: Install Docker Desktop
   community.general.homebrew:
     name: docker
     state: present
   register: app_install
 
-- name: Copy Containers environment configuration
+- name: Copy environment configuration
   ansible.builtin.copy:
     src: containers.zsh
     dest: "$HOME/.oh-my-zsh/custom/containers.zsh"
@@ -47,10 +47,10 @@
     - dive
   register: docker_utils
 
-- name: Display Containers setup status
+- name: Display Containerization setup status
   debug:
     msg:
-      - "Containers setup completed:"
+      - "Containerization setup completed:"
       - "  - Package: {% if app_install.changed %}installed{% else %}already present{% endif %}"
       - "  - OMZSH/Docker plugin: {% if docker_plugin_check.changed %}configured{% else %}already present{% endif %}"
       - "  - Shell config: {% if env_config.changed %}deployed{% else %}already present{% endif %}"
