@@ -6,6 +6,7 @@
     state: present
   loop:
     - cfssl
+    - dockutil
     - dos2unix
     - ipcalc
     - jid
