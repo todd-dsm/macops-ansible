@@ -1,10 +1,10 @@
 # Install and configure HashiCorp Packer
 ---
-- name: Install HashiCorp Packer
-  community.general.homebrew:
-    name: packer
-    state: present
-  register: app_install
+# - name: Install HashiCorp Packer
+#   community.general.homebrew:
+#     name: packer
+#     state: present
+#   register: app_install
 
 - name: Copy Packer environment configuration
   ansible.builtin.copy:
@@ -17,5 +17,5 @@
   debug:
     msg:
       - "Packer setup completed:"
-      - "  - Package: {% if app_install.changed %}installed{% else %}already present{% endif %}"
+      # - "  - Package: {% if app_install.changed %}installed{% else %}already present{% endif %}"
       - "  - Shell config: {% if env_config.changed %}deployed{% else %}already present{% endif %}"
