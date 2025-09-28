@@ -69,6 +69,43 @@
   register: finder_prefs
 
 # -----------------------------------------------------------------------------
+# Preferences: Dialog Box
+# Fixes some annoying dialog box behaviors on Save or Save As.
+# -----------------------------------------------------------------------------
+- name: Configure dialog box preferences
+  community.general.osx_defaults:
+    domain: NSGlobalDomain
+    key: "{{ item.key }}"
+    type: "{{ item.type }}"
+    value: "{{ item.value }}"
+  loop:
+    # Dialog expansion
+    - { key: "NSNavPanelExpandedStateForSaveMode", type: "bool", value: true }
+    - { key: "NSNavPanelExpandedStateForSaveMode2", type: "bool", value: true }
+    - { key: "PMPrintingExpandedStateForPrint", type: "bool", value: true }
+    - { key: "PMPrintingExpandedStateForPrint2", type: "bool", value: true }
+
+    # Dialog view modes - List view by default
+    - { key: "NSNavPanelFileLastListModeForOpenModeKey", type: "int", value: 3 }
+    - { key: "NSNavPanelFileLastListModeForSaveModeKey", type: "int", value: 2 }
+    - { key: "NSNavPanelFileListModeForOpenMode2", type: "int", value: 3 }
+    - { key: "NSNavPanelFileListModeForSaveMode2", type: "int", value: 2 }
+    - { key: "NavPanelFileListModeForOpenMode", type: "int", value: 2 }
+    - { key: "NavPanelFileListModeForSaveMode", type: "int", value: 2 }
+  register: dialog_prefs
+
+# Force applications to restart to pick up dialog changes
+- name: Restart common applications for dialog changes
+  ansible.builtin.command:
+    cmd: "killall {{ item }}"
+  loop:
+    - "TextEdit"
+    - "Preview"
+  when: dialog_prefs.changed
+  ignore_errors: yes
+  register: app_restarts
+
+# -----------------------------------------------------------------------------
 # Configure Network Shares Behavior
 # There aren't typically any network shares; no sense in saving to them.
 # -----------------------------------------------------------------------------
@@ -219,6 +256,10 @@
       - "macOS Finder preferences configured:"
       - "  - Finder preferences: {% if finder_prefs.changed %}configured{% else %}already set{% endif %}"
       - "  - Network shares behavior: {% if network_stores.changed %}configured{% else %}already set{% endif %}"
+
+      - "Display macOS configuration status:"
+      - "  - Dialog preferences: {% if dialog_prefs.changed %}configured for expansion and List view{% else %}already set{% endif %}"
+      - "  - Applications restarted: {% if app_restarts.changed %}yes{% else %}not needed{% endif %}"
 
       - "Screenshot configuration configured:"
       - "  - Directory: {% if screenshot_dir.changed %}created{% else %}already exists{% endif %} ({{ ansible_env.myPics }}/screens)"
