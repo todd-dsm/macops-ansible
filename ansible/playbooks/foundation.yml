@@ -4,23 +4,24 @@
   hosts: local
   gather_facts: yes
   vars:
-    time_pre: "{{ ansible_date_time.time }}"
     homebrew_no_env_hints: true
 
   environment:
     HOMEBREW_NO_ENV_HINTS: "{{ homebrew_no_env_hints }}"
 
   tasks:
-    - name: Record automation start time
-      set_fact:
-        automation_start: "{{ ansible_date_time.epoch }}"
+    - name: Record automation start time to file
+      copy:
+        content: "{{ ansible_date_time.epoch }}"
+        dest: "/tmp/ansible_start_time"
+      tags: [always, foundation]
 
     - name: Kick-off message
       debug:
         msg: |
           Configuring this macOS for {{ ansible_env.myFullName }}
           Environment mode: {{ env_mode }}
-          Start time: {{ time_pre }}
+          Start time: {{ ansible_date_time.time }}
 
     - name: Show test warning if in TEST mode
       debug:
@@ -35,6 +36,14 @@
     - name: Pre-flight validation
       include_tasks:
         file: ../tasks/validate/prereqs.yml
+        apply:
+          tags: [foundation]
+      tags: [foundation]
+
+    # NEW: Add backup here
+    - name: Backup /etc directory
+      include_tasks:
+        file: ../tasks/configure/backup-etc.yml
         apply:
           tags: [foundation]
       tags: [foundation]

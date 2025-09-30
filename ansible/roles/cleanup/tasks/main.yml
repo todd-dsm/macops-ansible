@@ -31,7 +31,7 @@
 - name: Find SSH private keys
   ansible.builtin.find:
     paths: "{{ ansible_env.HOME }}/.ssh"
-    patterns: 
+    patterns:
       - "id_*"
       - "*_rsa"
       - "*_ed25519"
@@ -50,10 +50,19 @@
   register: ssh_permissions_fixed
   when: ssh_private_keys.files | length > 0
 
+- name: Read automation start time from file
+  slurp:
+    src: /tmp/ansible_start_time
+  register: start_time_file
+
 - name: Calculate automation duration
   set_fact:
-    automation_end: "{{ ansible_date_time.epoch }}"
-    automation_duration: "{{ ((ansible_date_time.epoch | int) - (automation_start | int)) }}"
+    automation_start_epoch: "{{ start_time_file.content | b64decode | trim }}"
+    automation_end_epoch: "{{ ansible_date_time.epoch }}"
+
+- name: Calculate duration
+  set_fact:
+    automation_duration: "{{ ((automation_end_epoch | int) - (automation_start_epoch | int)) }}"
 
 - name: Convert duration to human readable format
   set_fact:
@@ -61,11 +70,16 @@
     duration_minutes: "{{ ((automation_duration | int % 3600) // 60) }}"
     duration_seconds: "{{ (automation_duration | int % 60) }}"
 
+- name: Clean up temporary start time file
+  file:
+    path: /tmp/ansible_start_time
+    state: absent
+
 - name: Display cleanup and automation summary
   debug:
     msg:
       - "=== AUTOMATION COMPLETED ==="
-      - "  - Post-install inventory: {% if inventory_logs.changed %}saved{% else %}already current{% endif %}"
+      - "  - Post-install inventory: {% if app_inventory.changed %}saved{% else %}already current{% endif %}"
       - "  - Homebrew cleanup: {% if brew_cleanup_result.changed %}completed{% else %}no cleanup needed{% endif %}"
       - "  - SSH key permissions: {% if ssh_permissions_fixed.changed %}{{ ssh_permissions_fixed.results | selectattr('changed') | list | length }} keys fixed{% else %}all keys properly secured{% endif %}"
       - "  - Total automation time: {{ duration_hours }}h {{ duration_minutes }}m {{ duration_seconds }}s"

@@ -14,9 +14,47 @@
     mode: '0644'
   register: env_config
 
+# -----------------------------------------------------------------------------
+# AWS CLI configuration
+# -----------------------------------------------------------------------------
+# AWS CLI Aliases configuration
+- name: Check if AWS CLI directory exists
+  ansible.builtin.stat:
+    path: "{{ ansible_env.HOME }}/.aws"
+  register: aws_dir_check
+
+- name: Create AWS CLI directory if missing
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.aws/cli"
+    state: directory
+    mode: '0755'
+  when: not aws_dir_check.stat.exists
+
+- name: Clone awscli-aliases repository
+  ansible.builtin.git:
+    repo: https://github.com/awslabs/awscli-aliases.git
+    dest: /tmp/awscli-aliases
+    version: master
+    force: yes
+  register: aliases_clone
+
+- name: Copy alias file to AWS CLI directory
+  ansible.builtin.copy:
+    src: /tmp/awscli-aliases/alias
+    dest: "{{ ansible_env.HOME }}/.aws/cli/alias"
+    mode: '0644'
+    remote_src: yes
+  register: aliases_install
+
+- name: Clean up temporary clone
+  ansible.builtin.file:
+    path: /tmp/awscli-aliases
+    state: absent
+
 - name: Display AWS CLI setup status
   debug:
     msg:
       - "AWS CLI setup completed:"
       - "  - Package: {% if app_install.changed %}installed{% else %}already present{% endif %}"
       - "  - Shell config: {% if env_config.changed %}deployed{% else %}already present{% endif %}"
+      - "  - AWS CLI aliases: {% if aliases_install.changed %}installed{% else %}already present{% endif %} at ~/.aws/cli/alias"

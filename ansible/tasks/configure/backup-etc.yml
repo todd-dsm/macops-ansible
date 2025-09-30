@@ -1,0 +1,28 @@
+# Backup /etc directory before making system modifications
+---
+- name: Display backup operation start
+  debug:
+    msg: "Backing up the /etc directory before we begin..."
+
+- name: Check if backup directory exists
+  ansible.builtin.stat:
+    path: "{{ ansible_env.backup_dir }}"
+  register: backup_dir_check
+
+- name: Validate backup directory exists
+  assert:
+    that:
+      - backup_dir_check.stat.exists
+    fail_msg: "Backup directory {{ ansible_env.backup_dir }} does not exist"
+    success_msg: "Backup directory ready at {{ ansible_env.backup_dir }}"
+
+- name: Backup /etc directory
+  ansible.builtin.command:
+    cmd: rsync -aE /private/etc "{{ ansible_env.backup_dir }}/"
+  register: backup_result
+  become: yes
+  changed_when: backup_result.rc == 0
+
+- name: Display backup completion
+  debug:
+    msg: "Backup completed. Check /tmp/rsync-err-etc.out for any errors if needed"

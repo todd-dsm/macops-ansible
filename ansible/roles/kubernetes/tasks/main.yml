@@ -70,18 +70,57 @@
     state: present
   register: krew_install
 
+# Configure Krew system path
+- name: Add Krew to system path
+  ansible.builtin.lineinfile:
+    path: /etc/paths
+    insertbefore: '^/usr/local/bin$'
+    line: "{{ ansible_env.HOME }}/.krew/bin"
+  become: yes
+  register: krew_path
+
 # -----------------------------------------------------------------------------
 # Krew Plugins
 # -----------------------------------------------------------------------------
-# - name: Install Krew Plugins
-#   ansible.builtin.shell: kubectl krew install {{ item }}
-#   loop:
-#     - whoami
-#     - kubectl-who-can
-#     - whoami
-#     - tree
-#     - ssh
-#   register: k8s_krew_plugins
+- name: Install Krew Plugins
+  ansible.builtin.shell: kubectl krew install {{ item }}
+  loop:
+    - resource-capacity
+    - tree
+    - whoami
+    - who-can
+  register: k8s_krew_plugins
+
+# -----------------------------------------------------------------------------
+# the weird plugins
+# -----------------------------------------------------------------------------
+# https://github.com/luksa/kubectl-plugins/blob/master/kubectl-ssh
+- name: Download kubectl-ssh plugin
+  ansible.builtin.get_url:
+    url: https://raw.githubusercontent.com/luksa/kubectl-plugins/master/kubectl-ssh
+    dest: /tmp/kubectl-ssh
+    mode: '0755'
+  register: kubectl_ssh_download
+
+- name: Install kubectl-ssh to system location
+  ansible.builtin.copy:
+    src: /tmp/kubectl-ssh
+    dest: /usr/local/bin/kubectl-ssh
+    mode: '0755'
+    remote_src: yes
+  become: yes
+  register: kubectl_ssh_install
+
+- name: Clean up temporary kubectl-ssh download
+  ansible.builtin.file:
+    path: /tmp/kubectl-ssh
+    state: absent
+
+- name: Verify kubectl-ssh installation
+  ansible.builtin.command: which kubectl-ssh
+  register: kubectl_ssh_verify
+  changed_when: false
+  failed_when: kubectl_ssh_verify.rc != 0
 
 # -----------------------------------------------------------------------------
 # ktx
@@ -123,7 +162,10 @@
       - "  - Kubernetes Service Mesh Tools: {% if k8s_mesh_tools.changed %}installed{% else %}already present{% endif %}"
       - "  - Kubernetes GitOps Tools: {% if k8s_gitops_tools.changed %}installed{% else %}already present{% endif %}"
       - "  - Krew plugin manager: {% if krew_install.changed %}installed{% else %}already present{% endif %}"
-      # - "  - Krew Plugins: {% if k8s_krew_plugins.changed %}installed{% else %}already present{% endif %}"
+      - "  - Krew Plugins: {% if k8s_krew_plugins.changed %}installed{% else %}already present{% endif %}"
       - "  - Minikube default settings: {% if minikube_config.changed %}configured{% else %}already present{% endif %}"
       - "  - ktx function: {% if ktx_install.changed %}installed{% else %}already present{% endif %}"
       - "  - ktx completion: {% if ktx_completion.changed %}installed{% else %}already present{% endif %}"
+      - "  - Krew plugin manager: {% if krew_install.changed %}installed{% else %}already present{% endif %}"
+      - "  - Krew system path: {% if krew_path.changed %}configured{% else %}already configured{% endif %}"
+      - "  - kubectl-ssh plugin: {% if kubectl_ssh_install.changed %}installed{% else %}already present{% endif %}"
