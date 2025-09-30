@@ -40,6 +40,14 @@
           tags: [foundation]
       tags: [foundation]
 
+    # NEW: Add backup here
+    - name: Backup /etc directory
+      include_tasks:
+        file: ../tasks/configure/backup-etc.yml
+        apply:
+          tags: [foundation]
+      tags: [foundation]
+
     # SSH key management (now with base tag)
     - name: Configure SSH keys
       include_tasks:
