@@ -5,7 +5,9 @@
     name: "{{ item }}"
     state: present
   loop:
+    - bazel
     - cfssl
+    - cmake
     - dockutil
     - dos2unix
     - ipcalc
