@@ -1,0 +1,32 @@
+═══════════════════════════════════════════════════════════════════════
+                   MACOS AUTOMATION COMPLETED
+═══════════════════════════════════════════════════════════════════════
+
+AUTOMATION SUMMARY:
+  Duration: {{ duration_hours }}h {{ duration_minutes }}m {{ duration_seconds }}s
+  Environment: {{ env_mode }}
+  Logs: {{ ansible_env.adminLogs }}/
+
+NEXT STEPS:
+
+  1. Review manual configuration steps:
+     → docs/post-install-manual-steps.md
+
+  2. Complete required manual tasks:
+     • Finder sidebar configuration
+     • System directory view settings
+     • Import Terminal profile (if you have one)
+
+  3. Verify automated settings:
+     • Check System Preferences
+     • Review Finder, Dock, Security settings
+
+  4. REBOOT your system:
+     sudo shutdown -r now
+
+DOCUMENTATION:
+  • Manual steps:  docs/post-install-manual-steps.md
+  • Testing guide: docs/testing/notes.md
+  • Dev gotchas:   docs/dev/gotchas.md
+
+═══════════════════════════════════════════════════════════════════════

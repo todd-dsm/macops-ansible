@@ -66,6 +66,11 @@
     path: /tmp/ansible_start_time
     state: absent
 
+# - name: Display post-installation instructions
+#   include_tasks: post-install-message.yml
+#   tags: [cleanup, final]
+
+
 - name: Display cleanup and automation summary
   debug:
     msg:
@@ -73,4 +78,3 @@
       - "  - Post-install inventory: {% if app_inventory_script.changed %}saved{% else %}already current{% endif %}"
       - "  - Homebrew cleanup: {% if brew_cleanup_result.changed %}completed{% else %}no cleanup needed{% endif %}"
       - "  - SSH key permissions: {% if ssh_permissions_fixed.changed %}{{ ssh_permissions_fixed.results | selectattr('changed') | list | length }} keys fixed{% else %}all keys properly secured{% endif %}"
-      - "  - Total automation time: {{ duration_hours }}h {{ duration_minutes }}m {{ duration_seconds }}s"
