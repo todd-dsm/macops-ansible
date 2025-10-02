@@ -53,6 +53,37 @@
   when: paths_check.stat.exists
   register: libressl_path
 
+# -----------------------------------------------------------------------------
+# Add OMZSH plugins
+# -----------------------------------------------------------------------------
+- name: Check which OMZSH utility plugins are already configured
+  ansible.builtin.shell: grep '^plugins=' "{{ ansible_env.HOME }}/.zshrc" | grep -o '{{ item }}'
+  loop:
+    - brew
+    - nmap
+    - encode64
+    - gitignore
+    - colored-man-pages
+    - common-aliases
+    - genpass
+    - history
+  register: plugin_checks
+  failed_when: false
+  changed_when: false
+
+- name: Add missing OMZSH utility plugins to ~/.zshrc
+  ansible.builtin.lineinfile:
+    path: "{{ ansible_env.HOME }}/.zshrc"
+    regexp: '^plugins=\((.*)\)$'
+    line: 'plugins=(\1 {{ item.item }})'
+    backrefs: yes
+  loop: "{{ plugin_checks.results }}"
+  when: item.rc != 0
+  register: plugins_added
+
+# -----------------------------------------------------------------------------
+# Display status
+# -----------------------------------------------------------------------------
 - name: Display system utilities installation status
   debug:
     msg:
@@ -60,3 +91,7 @@
       - "  - Network utilities: {% if network_utils.changed %}installed{% else %}already present{% endif %}"
       - "  - Build utilities: {% if build_utils.changed %}installed{% else %}already present{% endif %}"
       - "  - LibreSSL path: {% if libressl_path.changed %}added{% else %}already present{% endif %}"
+      - "Shell utility plugins:"
+      - "  - Total plugins processed: {{ plugin_checks.results | length }}"
+      - "  - Plugins added: {{ plugins_added.results | selectattr('changed', 'equalto', true) | map(attribute='item.item') | list | join(', ') if plugins_added.changed else 'none' }}"
+      - "  - Already configured: {{ plugin_checks.results | selectattr('rc', 'equalto', 0) | map(attribute='item') | list | join(', ') if plugin_checks.results | selectattr('rc', 'equalto', 0) | list | length > 0 else 'none' }}"
