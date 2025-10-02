@@ -44,6 +44,6 @@ User-space views are defaulted to List view.
 
 ***NOTE: Unfortunately, this needs to be repeated for each system directory.***
 
-<--! docs/refs -->
+<!-- docs/refs -->
 
 [mysides]:https://github.com/mosen/mysides
