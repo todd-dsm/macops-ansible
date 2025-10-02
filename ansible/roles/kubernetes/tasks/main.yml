@@ -1,5 +1,4 @@
 # Install and configure Kubernetes CLI with ktx
-# File: roles/kubernetes/tasks/main.yml
 ---
 # -----------------------------------------------------------------------------
 # Kubernetes Core Tools
@@ -44,7 +43,6 @@
     backrefs: yes
   when: not kubectl_plugin_check.found
 
-
 # -----------------------------------------------------------------------------
 # Helm
 # -----------------------------------------------------------------------------
@@ -64,7 +62,6 @@
     line: 'plugins=(\1 helm)'
     backrefs: yes
   when: not helm_plugin_check.found
-
 
 # -----------------------------------------------------------------------------
 # Minikube
@@ -95,7 +92,6 @@
     backrefs: yes
   when: not minikube_plugin_check.found
 
-
 # -----------------------------------------------------------------------------
 # Service Mesh Tools
 # -----------------------------------------------------------------------------
@@ -109,7 +105,6 @@
     - cilium-cli
   register: k8s_mesh_tools
 
-
 # -----------------------------------------------------------------------------
 # GitOps Tools
 # -----------------------------------------------------------------------------
@@ -121,7 +116,6 @@
     - flux
     - argocd
   register: k8s_gitops_tools
-
 
 # -----------------------------------------------------------------------------
 # Krew Plugin Manager
@@ -165,11 +159,9 @@
   register: kubectl_ssh_download
 
 - name: Install kubectl-ssh to system location
-  ansible.builtin.copy:
-    src: /tmp/kubectl-ssh
-    dest: /usr/local/bin/kubectl-ssh
-    mode: '0755'
-    remote_src: yes
+  ansible.builtin.command:
+    cmd: mv /tmp/kubectl-ssh /usr/local/bin/kubectl-ssh
+    creates: /usr/local/bin/kubectl-ssh
   become: yes
   register: kubectl_ssh_install
 
@@ -184,7 +176,6 @@
   changed_when: false
   failed_when: kubectl_ssh_verify.rc != 0
 
-
 # -----------------------------------------------------------------------------
 # ktx
 # -----------------------------------------------------------------------------
@@ -196,35 +187,42 @@
   register: ktx_clone
 
 - name: Install ktx bash function
-  ansible.builtin.copy:
-    src: /tmp/ktx/ktx
-    dest: "{{ ansible_env.HOME }}/.ktx"
-    mode: '0755'
-    remote_src: yes
+  ansible.builtin.command:
+    cmd: cp /tmp/ktx/ktx "{{ ansible_env.HOME }}/.ktx"
+    creates: "{{ ansible_env.HOME }}/.ktx"
   register: ktx_install
 
+- name: Set ktx permissions
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.ktx"
+    mode: '0755'
+  when: ktx_install.changed
+
 - name: Install ktx completion
-  ansible.builtin.copy:
-    src: /tmp/ktx/ktx-completion.sh
-    dest: "{{ ansible_env.HOME }}/.ktx-completion.sh"
-    mode: '0644'
-    remote_src: yes
+  ansible.builtin.command:
+    cmd: cp /tmp/ktx/ktx-completion.sh "{{ ansible_env.HOME }}/.ktx-completion.sh"
+    creates: "{{ ansible_env.HOME }}/.ktx-completion.sh"
   register: ktx_completion
+
+- name: Set ktx completion permissions
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.ktx-completion.sh"
+    mode: '0644'
+  when: ktx_completion.changed
 
 - name: Clean up ktx temporary directory
   ansible.builtin.file:
     path: /tmp/ktx
     state: absent
 
+# -----------------------------------------------------------------------------
+# Display status
+# -----------------------------------------------------------------------------
 - name: Display Kubernetes CLI setup status
   debug:
     msg:
       - "Kubernetes CLI setup completed:"
       - "  - Kubernetes Core Tools: {% if k8s_core_tools.changed %}installed{% else %}already present{% endif %}"
-      - "Plugins:"
-      - "  - OMZSH/kubectl plugin: {% if kubectl_plugin_check.changed %}configured{% else %}already present{% endif %}"
-      - "  - OMZSH/helm plugin: {% if helm_plugin_check.changed %}configured{% else %}already present{% endif %}"
-      - "  - OMZSH/minikube plugin: {% if minikube_plugin_check.changed %}configured{% else %}already present{% endif %}"
       - "  - Shell config: {% if env_config.changed %}deployed{% else %}already present{% endif %}"
       - "  - Kubernetes Service Mesh Tools: {% if k8s_mesh_tools.changed %}installed{% else %}already present{% endif %}"
       - "  - Kubernetes GitOps Tools: {% if k8s_gitops_tools.changed %}installed{% else %}already present{% endif %}"
@@ -236,3 +234,7 @@
       - "  - Krew plugin manager: {% if krew_install.changed %}installed{% else %}already present{% endif %}"
       - "  - Krew system path: {% if krew_path.changed %}configured{% else %}already configured{% endif %}"
       - "  - kubectl-ssh plugin: {% if kubectl_ssh_install.changed %}installed{% else %}already present{% endif %}"
+      - "Added:"
+      - "  - OMZSH/kubectl plugin: {% if kubectl_plugin_check.changed %}configured{% else %}already present{% endif %}"
+      - "  - OMZSH/helm plugin: {% if helm_plugin_check.changed %}configured{% else %}already present{% endif %}"
+      - "  - OMZSH/minikube plugin: {% if minikube_plugin_check.changed %}configured{% else %}already present{% endif %}"
