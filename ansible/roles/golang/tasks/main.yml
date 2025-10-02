@@ -30,6 +30,29 @@
     mode: '0644'
   register: env_config
 
+# -----------------------------------------------------------------------------
+# Add OMZSH plugin
+# -----------------------------------------------------------------------------
+- name: Check if OMZSH/golang plugin already configured
+  ansible.builtin.lineinfile:
+    path: "{{ ansible_env.HOME }}/.zshrc"
+    regexp: '^plugins=.*golang.*'
+    state: absent
+  check_mode: yes
+  register: golang_plugin_check
+  changed_when: false
+
+- name: Add OMZSH golang plugin to ~/.zshrc plugins
+  ansible.builtin.lineinfile:
+    path: "{{ ansible_env.HOME }}/.zshrc"
+    regexp: '^plugins=\((.*)\)$'
+    line: 'plugins=(\1 golang)'
+    backrefs: yes
+  when: not golang_plugin_check.found
+
+# -----------------------------------------------------------------------------
+# Display status
+# -----------------------------------------------------------------------------
 - name: Display Golang setup status
   debug:
     msg:
@@ -38,3 +61,5 @@
       - "  - Go bin directory: {% if create_bin_dir.changed %}created{% else %}already exists{% endif %}"
       - "  - System path: {% if sys_path.changed %}configured{% else %}already configured{% endif %}"
       - "  - Shell config: {% if env_config.changed %}deployed{% else %}already present{% endif %}"
+      - "Added:"
+      - "  - OMZSH/golang plugin: {% if golang_plugin_check.changed %}configured{% else %}already present{% endif %}"
