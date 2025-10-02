@@ -27,6 +27,48 @@
     mode: '0644'
   register: env_config
 
+- name: Check if OMZSH/kubectl plugin already configured
+  ansible.builtin.lineinfile:
+    path: "{{ ansible_env.HOME }}/.zshrc"
+    regexp: '^plugins=.*kubectl.*'
+    state: absent
+  check_mode: yes
+  register: kubectl_plugin_check
+  changed_when: false
+
+- name: Add OMZSH kubectl plugin to ~/.zshrc plugins
+  ansible.builtin.lineinfile:
+    path: "{{ ansible_env.HOME }}/.zshrc"
+    regexp: '^plugins=\((.*)\)$'
+    line: 'plugins=(\1 kubectl)'
+    backrefs: yes
+  when: not kubectl_plugin_check.found
+
+
+# -----------------------------------------------------------------------------
+# Helm
+# -----------------------------------------------------------------------------
+- name: Check if OMZSH/helm plugin already configured
+  ansible.builtin.lineinfile:
+    path: "{{ ansible_env.HOME }}/.zshrc"
+    regexp: '^plugins=.*helm.*'
+    state: absent
+  check_mode: yes
+  register: helm_plugin_check
+  changed_when: false
+
+- name: Add OMZSH helm plugin to ~/.zshrc plugins
+  ansible.builtin.lineinfile:
+    path: "{{ ansible_env.HOME }}/.zshrc"
+    regexp: '^plugins=\((.*)\)$'
+    line: 'plugins=(\1 helm)'
+    backrefs: yes
+  when: not helm_plugin_check.found
+
+
+# -----------------------------------------------------------------------------
+# Minikube
+# -----------------------------------------------------------------------------
 - name: Configuring Minikube default settings
   ansible.builtin.shell: |
     minikube config set cpus 2
@@ -35,6 +77,24 @@
     minikube config set WantVirtualBoxDriverWarning false
   register: minikube_config
   changed_when: false
+
+- name: Check if OMZSH/minikube plugin already configured
+  ansible.builtin.lineinfile:
+    path: "{{ ansible_env.HOME }}/.zshrc"
+    regexp: '^plugins=.*minikube.*'
+    state: absent
+  check_mode: yes
+  register: minikube_plugin_check
+  changed_when: false
+
+- name: Add OMZSH minikube plugin to ~/.zshrc plugins
+  ansible.builtin.lineinfile:
+    path: "{{ ansible_env.HOME }}/.zshrc"
+    regexp: '^plugins=\((.*)\)$'
+    line: 'plugins=(\1 minikube)'
+    backrefs: yes
+  when: not minikube_plugin_check.found
+
 
 # -----------------------------------------------------------------------------
 # Service Mesh Tools
@@ -49,6 +109,7 @@
     - cilium-cli
   register: k8s_mesh_tools
 
+
 # -----------------------------------------------------------------------------
 # GitOps Tools
 # -----------------------------------------------------------------------------
@@ -60,6 +121,7 @@
     - flux
     - argocd
   register: k8s_gitops_tools
+
 
 # -----------------------------------------------------------------------------
 # Krew Plugin Manager
@@ -122,6 +184,7 @@
   changed_when: false
   failed_when: kubectl_ssh_verify.rc != 0
 
+
 # -----------------------------------------------------------------------------
 # ktx
 # -----------------------------------------------------------------------------
@@ -158,6 +221,10 @@
     msg:
       - "Kubernetes CLI setup completed:"
       - "  - Kubernetes Core Tools: {% if k8s_core_tools.changed %}installed{% else %}already present{% endif %}"
+      - "Plugins:"
+      - "  - OMZSH/kubectl plugin: {% if kubectl_plugin_check.changed %}configured{% else %}already present{% endif %}"
+      - "  - OMZSH/helm plugin: {% if helm_plugin_check.changed %}configured{% else %}already present{% endif %}"
+      - "  - OMZSH/minikube plugin: {% if minikube_plugin_check.changed %}configured{% else %}already present{% endif %}"
       - "  - Shell config: {% if env_config.changed %}deployed{% else %}already present{% endif %}"
       - "  - Kubernetes Service Mesh Tools: {% if k8s_mesh_tools.changed %}installed{% else %}already present{% endif %}"
       - "  - Kubernetes GitOps Tools: {% if k8s_gitops_tools.changed %}installed{% else %}already present{% endif %}"
