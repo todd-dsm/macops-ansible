@@ -2,7 +2,7 @@
 # Comprehensive validation script for macops-ansible automation
 # shellcheck disable=SC2015
 
-set -e
+#set -x
 
 # Colors
 readonly RED='\033[0;31m'
@@ -14,22 +14,22 @@ PASS=0
 FAIL=0
 WARN=0
 
-pass() { 
+pass() {
     echo -e "${GREEN}✓${NC} $*"
     ((PASS++))
 }
 
-fail() { 
+fail() {
     echo -e "${RED}✗${NC} $*"
     ((FAIL++))
 }
 
-warn() { 
+warn() {
     echo -e "${YELLOW}⚠${NC} $*"
     ((WARN++))
 }
 
-header() { 
+header() {
     echo ""
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo "$*"
@@ -160,7 +160,7 @@ check_cmd packer "Packer"
 check_cmd vault "Vault"
 
 # Google Cloud SDK
-if [[ -d "/opt/homebrew/Caskroom/google-cloud-sdk" ]]; then
+if [[ -d "/opt/homebrew/Caskroom/gcloud-cli" ]]; then
     pass "Google Cloud SDK installed"
 else
     warn "Google Cloud SDK not installed"
@@ -298,9 +298,9 @@ header "VALIDATION SUMMARY"
 TOTAL=$((PASS + FAIL + WARN))
 echo ""
 echo "Results:"
-echo "  ${GREEN}✓ Passed:${NC}  $PASS/$TOTAL"
-echo "  ${RED}✗ Failed:${NC}  $FAIL/$TOTAL"
-echo "  ${YELLOW}⚠ Warnings:${NC} $WARN/$TOTAL"
+echo -e "  ${GREEN}✓ Passed:${NC}  $PASS/$TOTAL"
+echo -e "  ${RED}✗ Failed:${NC}  $FAIL/$TOTAL"
+echo -e "  ${YELLOW}⚠ Warnings:${NC} $WARN/$TOTAL"
 echo ""
 
 if [[ $FAIL -eq 0 ]]; then
