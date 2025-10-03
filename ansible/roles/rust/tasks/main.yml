@@ -7,6 +7,14 @@
     state: present
   register: app_install
 
+# Create Cargo bin directory
+- name: Create Cargo bin directory
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.cargo/bin"
+    state: directory
+    mode: '0755'
+  register: create_bin_dir
+
 - name: Configure Rust system path
   ansible.builtin.lineinfile:
     path: /etc/paths
