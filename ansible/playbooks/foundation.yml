@@ -10,12 +10,6 @@
     HOMEBREW_NO_ENV_HINTS: "{{ homebrew_no_env_hints }}"
 
   tasks:
-    - name: Record automation start time to file
-      copy:
-        content: "{{ ansible_date_time.epoch }}"
-        dest: "/tmp/ansible_start_time"
-      tags: [always, foundation]
-
     - name: Kick-off message
       debug:
         msg: |

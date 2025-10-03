@@ -1,13 +1,12 @@
----
 # Cleanup and final system maintenance
 # Post-installation logging, cleanup, and reporting
+---
 - name: Ensure admin logs directory exists
   ansible.builtin.file:
     path: "{{ ansible_env.adminLogs }}"
     state: directory
     mode: '0755'
 
-# Post-installation logging using existing script
 - name: Run post-install application inventory script
   ansible.builtin.command:
     cmd: "{{ ansible_env.PWD }}/../../tools/admin-app-details.sh post"
@@ -41,19 +40,14 @@
   register: ssh_permissions_fixed
   when: ssh_private_keys.files | length > 0
 
-- name: Read automation start time from file
-  slurp:
-    src: /tmp/ansible_start_time
-  register: start_time_file
-
 - name: Calculate automation duration
-  set_fact:
-    automation_start_epoch: "{{ start_time_file.content | b64decode | trim }}"
-    automation_end_epoch: "{{ ansible_date_time.epoch }}"
+  shell: echo $(( $(date +%s) - $(cat /tmp/ansible_start_time) ))
+  register: duration_calc
+  changed_when: false
 
-- name: Calculate duration
+- name: Set duration fact
   set_fact:
-    automation_duration: "{{ ((automation_end_epoch | int) - (automation_start_epoch | int)) }}"
+    automation_duration: "{{ duration_calc.stdout | int }}"
 
 - name: Convert duration to human readable format
   set_fact:
@@ -61,20 +55,17 @@
     duration_minutes: "{{ ((automation_duration | int % 3600) // 60) }}"
     duration_seconds: "{{ (automation_duration | int % 60) }}"
 
-- name: Clean up temporary start time file
-  file:
-    path: /tmp/ansible_start_time
-    state: absent
-
-# - name: Display post-installation instructions
-#   include_tasks: post-install-message.yml
-#   tags: [cleanup, final]
-
-
+# Display summary
 - name: Display cleanup and automation summary
   debug:
     msg:
       - "=== AUTOMATION COMPLETED ==="
+      - "  Duration: {{ duration_hours }}h {{ duration_minutes }}m {{ duration_seconds }}s"
+      - "  Environment: {{ env_mode | default('LIVE') }}"
+      - ""
+      - "=== CLEANUP SUMMARY ==="
       - "  - Post-install inventory: {% if app_inventory_script.changed %}saved{% else %}already current{% endif %}"
       - "  - Homebrew cleanup: {% if brew_cleanup_result.changed %}completed{% else %}no cleanup needed{% endif %}"
       - "  - SSH key permissions: {% if ssh_permissions_fixed.changed %}{{ ssh_permissions_fixed.results | selectattr('changed') | list | length }} keys fixed{% else %}all keys properly secured{% endif %}"
+      - ""
+      - "Logs: {{ ansible_env.adminLogs }}/"
