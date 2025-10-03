@@ -82,6 +82,23 @@
   register: plugins_added
 
 # -----------------------------------------------------------------------------
+# Add OMZSH Custom aliases and functions
+# -----------------------------------------------------------------------------
+- name: Copy custom shell aliases to Oh My ZSH
+  ansible.builtin.copy:
+    src: ../../../../configs/aliases.zsh
+    dest: "{{ ansible_env.HOME }}/.oh-my-zsh/custom/aliases.zsh"
+    mode: '0644'
+  register: aliases_copy
+
+- name: Copy custom shell functions to Oh My ZSH
+  ansible.builtin.copy:
+    src: ../../../../configs/functions.zsh
+    dest: "{{ ansible_env.HOME }}/.oh-my-zsh/custom/functions.zsh"
+    mode: '0644'
+  register: functions_copy
+
+# -----------------------------------------------------------------------------
 # Display status
 # -----------------------------------------------------------------------------
 - name: Display system utilities installation status
@@ -95,3 +112,6 @@
       - "  - Total plugins processed: {{ plugin_checks.results | length }}"
       - "  - Plugins added: {{ plugins_added.results | selectattr('changed', 'equalto', true) | map(attribute='item.item') | list | join(', ') if plugins_added.changed else 'none' }}"
       - "  - Already configured: {{ plugin_checks.results | selectattr('rc', 'equalto', 0) | map(attribute='item') | list | join(', ') if plugin_checks.results | selectattr('rc', 'equalto', 0) | list | length > 0 else 'none' }}"
+      - "Shell aliases and functions configured:"
+      - "  - Aliases: {% if aliases_copy.changed %}updated{% else %}already present{% endif %}"
+      - "  - Functions: {% if functions_copy.changed %}updated{% else %}already present{% endif %}"
