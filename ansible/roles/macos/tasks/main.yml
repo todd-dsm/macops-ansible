@@ -51,6 +51,8 @@
   loop:
     # List view by default
     - { key: "FXPreferredViewStyle", type: "string", value: "Nlsv" }
+    # Show file extensions
+    - { key: "AppleShowAllExtensions", type: "bool", value: true }
     # Write files locally (as opposed to iCloud) by default
     - { key: "NSDocumentSaveNewDocumentsToCloud", type: "bool", value: false }
     # Disable smart quotes and dashes by default
@@ -66,20 +68,11 @@
     - { key: "FXDefaultSearchScope", type: "string", value: "SCcf" }
   register: finder_prefs
 
-# Show file extensions globally
-- name: Show all file extensions
-  community.general.osx_defaults:
-    domain: NSGlobalDomain
-    key: AppleShowAllExtensions
-    type: bool
-    value: true
-  register: show_extensions
-
-- name: Restart Finder for extension visibility
-  ansible.builtin.command:
-    cmd: killall Finder
-  when: show_extensions.changed
-  ignore_errors: yes
+# - name: Restart Finder for extension visibility
+#   ansible.builtin.command:
+#     cmd: killall Finder
+#   when: finder_prefs.changed
+#   ignore_errors: yes
 
 # -----------------------------------------------------------------------------
 # Preferences: Dialog Box

@@ -1,5 +1,5 @@
----
 # Master playbook - maintains bootstrap.sh execution order
+---
 - import_playbook: playbooks/foundation.yml
 - import_playbook: playbooks/facts.yml
 - import_playbook: playbooks/development-tools.yml
