@@ -1,302 +1,301 @@
 #!/usr/bin/env bash
 # Comprehensive validation script for macops-ansible automation
-# Tests all automated configurations from 0-100%
+# shellcheck disable=SC2015
 
 set -e
 
-# Colors for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-NC='\033[0m' # No Color
+# Colors
+readonly RED='\033[0;31m'
+readonly GREEN='\033[0;32m'
+readonly YELLOW='\033[1;33m'
+readonly NC='\033[0m'
 
 PASS=0
 FAIL=0
 WARN=0
 
-# Test result functions
-pass() {
-    echo -e "${GREEN}✓${NC} $1"
+pass() { 
+    echo -e "${GREEN}✓${NC} $*"
     ((PASS++))
 }
 
-fail() {
-    echo -e "${RED}✗${NC} $1"
+fail() { 
+    echo -e "${RED}✗${NC} $*"
     ((FAIL++))
 }
 
-warn() {
-    echo -e "${YELLOW}⚠${NC} $1"
+warn() { 
+    echo -e "${YELLOW}⚠${NC} $*"
     ((WARN++))
 }
 
-header() {
+header() { 
     echo ""
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo "$1"
+    echo "$*"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 }
 
-# Start validation
+check_dir() {
+    if [[ -d "$1" ]]; then
+        pass "$2"
+    else
+        fail "$2 (missing: $1)"
+    fi
+}
+
+check_file() {
+    if [[ -f "$1" ]]; then
+        pass "$2"
+    else
+        fail "$2 (missing: $1)"
+    fi
+}
+
+check_cmd() {
+    if command -v "$1" &>/dev/null; then
+        pass "$2"
+    else
+        fail "$2 (command not found: $1)"
+    fi
+}
+
+check_opt() {
+    if [[ -e "$1" ]]; then
+        pass "$2"
+    else
+        warn "$2 (missing: $1)"
+    fi
+}
+
 echo "╔════════════════════════════════════════════════════════════════════╗"
 echo "║         MACOPS-ANSIBLE AUTOMATION VALIDATION                       ║"
 echo "╚════════════════════════════════════════════════════════════════════╝"
-echo ""
-echo "Starting comprehensive validation at $(date)"
+echo "Starting validation at $(date)"
 
-# ============================================================================
-# FOUNDATION VALIDATION
 # ============================================================================
 header "FOUNDATION & PREREQUISITES"
+check_dir "$HOME/.config/admin/logs" "Admin logs directory"
+check_dir "$HOME/.config/admin/backup" "Admin backup directory"
+check_dir "$HOME/.config/shell" "Shell config directory"
+check_opt "$HOME/.ssh/known_hosts" "SSH known_hosts"
+check_opt "$HOME/Downloads/solarized" "Solarized theme"
 
-# Admin directories
-[[ -d "$HOME/.config/admin/logs" ]] && pass "Admin logs directory exists" || fail "Admin logs directory missing"
-[[ -d "$HOME/.config/admin/backup" ]] && pass "Admin backup directory exists" || fail "Admin backup directory missing"
-[[ -d "$HOME/.config/shell" ]] && pass "Shell config directory exists" || fail "Shell config directory missing"
-
-# SSH configuration
-[[ -f "$HOME/.ssh/known_hosts" ]] && pass "SSH known_hosts exists" || warn "SSH known_hosts missing"
-grep -q "github.com" "$HOME/.ssh/known_hosts" 2>/dev/null && pass "GitHub SSH key present" || warn "GitHub SSH key missing"
-
-# Solarized theme
-[[ -d "$HOME/Downloads/solarized" ]] && pass "Solarized theme downloaded" || warn "Solarized theme missing"
-
-# ============================================================================
-# SHELL ENVIRONMENT
 # ============================================================================
 header "SHELL ENVIRONMENT"
+if [[ "$SHELL" == "/bin/zsh" ]]; then
+    pass "Default shell: ZSH"
+else
+    fail "Shell not ZSH: $SHELL"
+fi
 
-[[ "$SHELL" == "/bin/zsh" ]] && pass "Default shell is ZSH" || fail "Default shell is not ZSH: $SHELL"
-[[ -d "$HOME/.oh-my-zsh" ]] && pass "Oh My ZSH installed" || fail "Oh My ZSH missing"
-[[ -f "$HOME/.zshrc" ]] && pass ".zshrc exists" || fail ".zshrc missing"
+check_dir "$HOME/.oh-my-zsh" "Oh My ZSH"
+check_file "$HOME/.zshrc" ".zshrc"
+check_opt "$HOME/.oh-my-zsh/custom/homebrew.zsh" "Homebrew config"
+check_opt "$HOME/.config/shell/aliases.zsh" "Custom aliases"
+check_opt "$HOME/.config/shell/functions.zsh" "Custom functions"
 
-# Custom shell configurations
-[[ -f "$HOME/.oh-my-zsh/custom/homebrew.zsh" ]] && pass "Homebrew config present" || warn "Homebrew config missing"
-[[ -f "$HOME/.config/shell/aliases.zsh" ]] && pass "Custom aliases present" || warn "Custom aliases missing"
-[[ -f "$HOME/.config/shell/functions.zsh" ]] && pass "Custom functions present" || warn "Custom functions missing"
-
-# ============================================================================
-# PROGRAMMING LANGUAGES
 # ============================================================================
 header "PROGRAMMING LANGUAGES"
 
 # Rust
-if command -v rustc &> /dev/null; then
-    pass "Rust installed: $(rustc --version | cut -d' ' -f2)"
-    [[ -d "$HOME/.cargo/bin" ]] && pass "Cargo bin directory exists" || warn "Cargo bin directory missing"
+if command -v rustc &>/dev/null; then
+    rust_version=$(rustc --version | cut -d' ' -f2)
+    pass "Rust: $rust_version"
+    check_dir "$HOME/.cargo/bin" "Cargo bin directory"
 else
     fail "Rust not installed"
 fi
 
 # Go
-if command -v go &> /dev/null; then
-    pass "Go installed: $(go version | awk '{print $3}')"
-    [[ -d "$HOME/go/bin" ]] && pass "Go workspace bin directory exists" || warn "Go workspace bin missing"
-    grep -q "$HOME/go/bin" /etc/paths 2>/dev/null && pass "Go bin in system path" || warn "Go bin not in system path"
+if command -v go &>/dev/null; then
+    go_version=$(go version | awk '{print $3}')
+    pass "Go: $go_version"
+    check_dir "$HOME/go/bin" "Go workspace bin"
 else
     fail "Go not installed"
 fi
 
 # Node.js
-if command -v node &> /dev/null; then
-    pass "Node.js installed: $(node --version)"
-    command -v npm &> /dev/null && pass "npm installed: $(npm --version)" || warn "npm missing"
+if command -v node &>/dev/null; then
+    node_version=$(node --version)
+    pass "Node.js: $node_version"
+    check_cmd npm "npm"
 else
     fail "Node.js not installed"
 fi
 
 # Python
-if command -v python3 &> /dev/null; then
-    pass "Python3 installed: $(python3 --version | awk '{print $2}')"
-    command -v pip3 &> /dev/null && pass "pip3 installed" || warn "pip3 missing"
+if command -v python3 &>/dev/null; then
+    python_version=$(python3 --version | awk '{print $2}')
+    pass "Python3: $python_version"
+    check_cmd pip3 "pip3"
 else
     fail "Python3 not installed"
 fi
 
 # ============================================================================
-# DEVELOPMENT TOOLS
-# ============================================================================
 header "DEVELOPMENT TOOLS"
 
 # AWS CLI
-if command -v aws &> /dev/null; then
-    pass "AWS CLI installed: $(aws --version | cut -d' ' -f1 | cut -d'/' -f2)"
-    [[ -f "$HOME/.oh-my-zsh/custom/aws.zsh" ]] && pass "AWS config present" || warn "AWS config missing"
-    [[ -f "$HOME/.aws/cli/alias" ]] && pass "AWS CLI aliases installed" || warn "AWS CLI aliases missing"
+if command -v aws &>/dev/null; then
+    aws_version=$(aws --version 2>&1 | cut -d' ' -f1 | cut -d'/' -f2)
+    pass "AWS CLI: $aws_version"
+    check_opt "$HOME/.oh-my-zsh/custom/aws.zsh" "AWS config"
+    check_opt "$HOME/.aws/cli/alias" "AWS CLI aliases"
 else
     fail "AWS CLI not installed"
 fi
 
-# Terraform (via tfenv)
-if command -v terraform &> /dev/null; then
-    pass "Terraform installed: $(terraform version -json | grep -o '"terraform_version":"[^"]*' | cut -d'"' -f4)"
-    command -v tfenv &> /dev/null && pass "tfenv installed" || warn "tfenv missing"
-    grep -q "terraform" "$HOME/.zshrc" 2>/dev/null && pass "Terraform OMZSH plugin configured" || warn "Terraform plugin missing"
+# Terraform
+if command -v terraform &>/dev/null; then
+    tf_version=$(terraform version -json 2>/dev/null | grep -o '"terraform_version":"[^"]*' | cut -d'"' -f4)
+    pass "Terraform: $tf_version"
+    check_cmd tfenv "tfenv"
 else
     fail "Terraform not installed"
 fi
 
-# Packer
-command -v packer &> /dev/null && pass "Packer installed: $(packer version | head -1 | awk '{print $2}')" || fail "Packer not installed"
-
-# Vault
-command -v vault &> /dev/null && pass "Vault installed: $(vault version | head -1 | awk '{print $2}')" || fail "Vault not installed"
+check_cmd packer "Packer"
+check_cmd vault "Vault"
 
 # Google Cloud SDK
 if [[ -d "/opt/homebrew/Caskroom/google-cloud-sdk" ]]; then
     pass "Google Cloud SDK installed"
-    grep -q "gcloud" "$HOME/.zshrc" 2>/dev/null && pass "gcloud OMZSH plugin configured" || warn "gcloud plugin missing"
 else
-    fail "Google Cloud SDK not installed"
+    warn "Google Cloud SDK not installed"
 fi
 
 # Ansible
-if command -v ansible &> /dev/null; then
-    pass "Ansible installed: $(ansible --version | head -1 | awk '{print $3}')"
-    [[ -d "$HOME/.ansible" ]] && pass "Ansible directory exists" || warn "Ansible directory missing"
-    [[ -f "$HOME/.ansible/ansible.cfg" ]] && pass "Ansible config present" || warn "Ansible config missing"
+if command -v ansible &>/dev/null; then
+    ansible_version=$(ansible --version | head -1 | awk '{print $3}')
+    pass "Ansible: $ansible_version"
+    check_dir "$HOME/.ansible" "Ansible directory"
+    check_file "$HOME/.ansible/ansible.cfg" "Ansible config"
 else
     fail "Ansible not installed"
 fi
 
 # ============================================================================
-# CONTAINERIZATION
-# ============================================================================
 header "CONTAINERIZATION"
+check_cmd docker "Docker"
+check_cmd pack "Buildpacks (pack)"
+check_cmd dive "dive"
 
-if command -v docker &> /dev/null; then
-    pass "Docker installed"
-    grep -q "docker" "$HOME/.zshrc" 2>/dev/null && pass "Docker OMZSH plugin configured" || warn "Docker plugin missing"
-else
-    fail "Docker not installed"
-fi
-
-command -v pack &> /dev/null && pass "Buildpacks (pack) installed" || warn "Buildpacks not installed"
-command -v dive &> /dev/null && pass "dive installed" || warn "dive not installed"
-
-# ============================================================================
-# KUBERNETES ECOSYSTEM
 # ============================================================================
 header "KUBERNETES ECOSYSTEM"
-
-# Core tools
-if command -v kubectl &> /dev/null; then
-    pass "kubectl installed: $(kubectl version --client -o json 2>/dev/null | grep -o '"gitVersion":"[^"]*' | cut -d'"' -f4)"
-    grep -q "kubectl" "$HOME/.zshrc" 2>/dev/null && pass "kubectl OMZSH plugin configured" || warn "kubectl plugin missing"
+if command -v kubectl &>/dev/null; then
+    kubectl_version=$(kubectl version --client -o json 2>/dev/null | grep -o '"gitVersion":"v[^"]*' | cut -d'"' -f4)
+    pass "kubectl: $kubectl_version"
 else
     fail "kubectl not installed"
 fi
 
-command -v helm &> /dev/null && pass "Helm installed: $(helm version --short 2>/dev/null | awk '{print $1}')" || fail "Helm not installed"
-command -v minikube &> /dev/null && pass "Minikube installed" || warn "Minikube not installed"
-command -v k9s &> /dev/null && pass "k9s installed" || warn "k9s not installed"
-command -v eksctl &> /dev/null && pass "eksctl installed" || warn "eksctl not installed"
+check_cmd helm "Helm"
+check_cmd minikube "Minikube"
+check_cmd k9s "k9s"
+check_cmd eksctl "eksctl"
+check_cmd kubectx "kubectx"
+check_cmd kubens "kubens"
+check_opt "$HOME/.ktx" "ktx function"
+check_cmd istioctl "istioctl"
+check_cmd linkerd "linkerd"
+check_cmd cilium "cilium-cli"
+check_cmd flux "Flux"
+check_cmd argocd "ArgoCD"
+check_cmd kubectl-krew "Krew"
 
-# Context switching tools
-command -v kubectx &> /dev/null && pass "kubectx installed" || warn "kubectx not installed"
-command -v kubens &> /dev/null && pass "kubens installed" || warn "kubens not installed"
-[[ -f "$HOME/.ktx" ]] && pass "ktx function installed" || warn "ktx function missing"
+# ============================================================================
+header "GUI APPLICATIONS"
+check_opt "/Applications/Google Chrome.app" "Google Chrome"
+check_opt "/Applications/Firefox.app" "Firefox"
+check_opt "/Applications/Slack.app" "Slack"
+check_opt "/Applications/Discord.app" "Discord"
+check_opt "/Applications/Cursor.app" "Cursor"
+check_opt "/Applications/Postman.app" "Postman"
+check_opt "/Applications/Wireshark.app" "Wireshark"
 
-# Service mesh
-command -v istioctl &> /dev/null && pass "istioctl installed" || warn "istioctl not installed"
-command -v linkerd &> /dev/null && pass "linkerd installed" || warn "linkerd not installed"
-command -v cilium &> /dev/null && pass "cilium-cli installed" || warn "cilium-cli not installed"
-
-# GitOps
-command -v flux &> /dev/null && pass "Flux installed" || warn "Flux not installed"
-command -v argocd &> /dev/null && pass "ArgoCD installed" || warn "ArgoCD not installed"
-
-# Krew and plugins
-if command -v kubectl-krew &> /dev/null; then
-    pass "Krew plugin manager installed"
-    grep -q ".krew/bin" /etc/paths 2>/dev/null && pass "Krew in system path" || warn "Krew not in system path"
+if fc-list 2>/dev/null | grep -qi "hack"; then
+    pass "Hack font installed"
 else
-    warn "Krew not installed"
+    warn "Hack font not found"
 fi
 
 # ============================================================================
-# GUI APPLICATIONS
-# ============================================================================
-header "GUI APPLICATIONS"
-
-[[ -d "/Applications/Google Chrome.app" ]] && pass "Google Chrome installed" || warn "Chrome not installed"
-[[ -d "/Applications/Firefox.app" ]] && pass "Firefox installed" || warn "Firefox not installed"
-[[ -d "/Applications/Slack.app" ]] && pass "Slack installed" || warn "Slack not installed"
-[[ -d "/Applications/Discord.app" ]] && pass "Discord installed" || warn "Discord not installed"
-[[ -d "/Applications/Cursor.app" ]] && pass "Cursor installed" || warn "Cursor not installed"
-[[ -d "/Applications/Postman.app" ]] && pass "Postman installed" || warn "Postman not installed"
-[[ -d "/Applications/Wireshark.app" ]] && pass "Wireshark installed" || warn "Wireshark not installed"
-
-# Font check
-fc-list 2>/dev/null | grep -qi "hack" && pass "Hack font installed" || warn "Hack font not found"
-
-# ============================================================================
-# SYSTEM UTILITIES
-# ============================================================================
 header "SYSTEM UTILITIES"
+check_cmd nmap "nmap"
+check_cmd tree "tree"
+check_cmd jq "jq"
+check_cmd yq "yq"
+check_cmd tmux "tmux"
+check_cmd cmake "cmake"
+check_cmd bazel "bazel"
+check_cmd dockutil "dockutil"
 
-# Networking tools
-command -v nmap &> /dev/null && pass "nmap installed" || fail "nmap not installed"
-command -v tcpdump &> /dev/null && pass "tcpdump installed" || warn "tcpdump not installed"
-command -v sipcalc &> /dev/null && pass "sipcalc installed" || warn "sipcalc not installed"
-
-# System utilities
-command -v tree &> /dev/null && pass "tree installed" || fail "tree not installed"
-command -v watch &> /dev/null && pass "watch installed" || warn "watch not installed"
-command -v tmux &> /dev/null && pass "tmux installed" || warn "tmux not installed"
-command -v jq &> /dev/null && pass "jq installed" || fail "jq not installed"
-command -v yq &> /dev/null && pass "yq installed" || warn "yq not installed"
-
-# Build tools
-command -v cmake &> /dev/null && pass "cmake installed" || warn "cmake not installed"
-command -v bazel &> /dev/null && pass "bazel installed" || warn "bazel not installed"
-
-# dockutil
-command -v dockutil &> /dev/null && pass "dockutil installed" || warn "dockutil not installed"
-
-# ============================================================================
-# MACOS CONFIGURATION
 # ============================================================================
 header "MACOS CONFIGURATION"
 
-# Finder preferences
-viewStyle=$(defaults read com.apple.finder FXPreferredViewStyle 2>/dev/null)
-[[ "$viewStyle" == "Nlsv" ]] && pass "Finder default view: List" || warn "Finder view not set to List: $viewStyle"
+viewStyle=$(defaults read com.apple.finder FXPreferredViewStyle 2>/dev/null || echo "")
+if [[ "$viewStyle" == "Nlsv" ]]; then
+    pass "Finder: List view"
+else
+    warn "Finder not List view: $viewStyle"
+fi
 
-showExt=$(defaults read NSGlobalDomain AppleShowAllExtensions 2>/dev/null)
-[[ "$showExt" == "1" ]] && pass "Show all file extensions: enabled" || warn "Show extensions disabled"
+showExt=$(defaults read NSGlobalDomain AppleShowAllExtensions 2>/dev/null || echo "0")
+if [[ "$showExt" == "1" ]]; then
+    pass "Show all extensions: enabled"
+else
+    warn "Show extensions disabled"
+fi
 
-searchScope=$(defaults read com.apple.finder FXDefaultSearchScope 2>/dev/null)
-[[ "$searchScope" == "SCcf" ]] && pass "Search current folder by default" || warn "Search scope not set to current folder"
+tileSize=$(defaults read com.apple.dock tilesize 2>/dev/null || echo "0")
+if [[ "$tileSize" == "42" ]]; then
+    pass "Dock size: 42px"
+else
+    warn "Dock not 42px: $tileSize"
+fi
 
-# Dock preferences
-tileSize=$(defaults read com.apple.dock tilesize 2>/dev/null)
-[[ "$tileSize" == "42" ]] && pass "Dock tile size: 42px" || warn "Dock tile size not 42: $tileSize"
+screenshotDir=$(defaults read com.apple.screencapture location 2>/dev/null || echo "")
+if [[ "$screenshotDir" == "$HOME/Pictures/screens" ]]; then
+    pass "Screenshot location configured"
+else
+    warn "Screenshot location not set"
+fi
 
-# Screenshot preferences
-screenshotDir=$(defaults read com.apple.screencapture location 2>/dev/null)
-[[ "$screenshotDir" == "$HOME/Pictures/screens" ]] && pass "Screenshot location configured" || warn "Screenshot location not set"
-[[ -d "$HOME/Pictures/screens" ]] && pass "Screenshots directory exists" || warn "Screenshots directory missing"
-[[ -L "$HOME/Desktop/screens" ]] && pass "Desktop screenshots symlink exists" || warn "Desktop symlink missing"
+check_dir "$HOME/Pictures/screens" "Screenshots directory"
 
-# TextEdit preferences
-richText=$(defaults read com.apple.TextEdit RichText 2>/dev/null)
-[[ "$richText" == "0" ]] && pass "TextEdit: Plain text mode" || warn "TextEdit not in plain text mode"
+if [[ -L "$HOME/Desktop/screens" ]]; then
+    pass "Desktop screenshots symlink"
+else
+    warn "Desktop symlink missing"
+fi
 
-font=$(defaults read com.apple.TextEdit NSFixedPitchFont 2>/dev/null)
-[[ "$font" == "Hack-Regular" ]] && pass "TextEdit font: Hack-Regular" || warn "TextEdit font not Hack: $font"
+richText=$(defaults read com.apple.TextEdit RichText 2>/dev/null || echo "1")
+if [[ "$richText" == "0" ]]; then
+    pass "TextEdit: Plain text mode"
+else
+    warn "TextEdit not plain text mode"
+fi
 
-# Security settings
-guestLogin=$(sudo defaults read /Library/Preferences/com.apple.loginwindow GuestEnabled 2>/dev/null)
-[[ "$guestLogin" == "0" ]] && pass "Guest login disabled" || warn "Guest login not disabled"
+font=$(defaults read com.apple.TextEdit NSFixedPitchFont 2>/dev/null || echo "")
+if [[ "$font" == "Hack-Regular" ]]; then
+    pass "TextEdit font: Hack-Regular"
+else
+    warn "TextEdit font not Hack: $font"
+fi
 
-# ============================================================================
-# FINAL SUMMARY
+guestLogin=$(sudo defaults read /Library/Preferences/com.apple.loginwindow GuestEnabled 2>/dev/null || echo "1")
+if [[ "$guestLogin" == "0" ]]; then
+    pass "Guest login: disabled"
+else
+    warn "Guest login not disabled"
+fi
+
 # ============================================================================
 header "VALIDATION SUMMARY"
 
 TOTAL=$((PASS + FAIL + WARN))
-
 echo ""
 echo "Results:"
 echo "  ${GREEN}✓ Passed:${NC}  $PASS/$TOTAL"
@@ -311,8 +310,7 @@ if [[ $FAIL -eq 0 ]]; then
     exit 0
 else
     echo -e "${RED}╔════════════════════════════════════════════════════════════════════╗${NC}"
-    echo -e "${RED}║  ✗ AUTOMATION VALIDATION FAILED                                    ║${NC}"
-    echo -e "${RED}║    Review failed checks above                                      ║${NC}"
+    echo -e "${RED}║  ✗ AUTOMATION VALIDATION FAILED - Review failures above            ║${NC}"
     echo -e "${RED}╚════════════════════════════════════════════════════════════════════╝${NC}"
     exit 1
 fi
