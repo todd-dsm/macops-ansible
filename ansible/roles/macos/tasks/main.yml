@@ -68,11 +68,11 @@
     - { key: "FXDefaultSearchScope", type: "string", value: "SCcf" }
   register: finder_prefs
 
-# - name: Restart Finder for extension visibility
-#   ansible.builtin.command:
-#     cmd: killall Finder
-#   when: finder_prefs.changed
-#   ignore_errors: yes
+- name: Restart Finder for extension visibility
+  ansible.builtin.command:
+    cmd: killall Finder
+  when: finder_prefs.changed
+  ignore_errors: yes
 
 # -----------------------------------------------------------------------------
 # Preferences: Dialog Box
