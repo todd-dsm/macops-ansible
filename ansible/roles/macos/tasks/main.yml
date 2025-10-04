@@ -101,15 +101,15 @@
   register: dialog_prefs
 
 # Force applications to restart to pick up dialog changes
-- name: Restart common applications for dialog changes
-  ansible.builtin.command:
-    cmd: "killall {{ item }}"
-  loop:
-    - "TextEdit"
-    - "Preview"
-  when: dialog_prefs.changed
-  ignore_errors: yes
-  register: app_restarts
+# - name: Restart common applications for dialog changes
+#   ansible.builtin.command:
+#     cmd: "killall {{ item }}"
+#   loop:
+#     - "TextEdit"
+#     - "Preview"
+#   when: dialog_prefs.changed
+#   ignore_errors: yes
+#   register: app_restarts
 
 # -----------------------------------------------------------------------------
 # Configure Network Shares Behavior
