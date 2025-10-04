@@ -265,7 +265,7 @@
 
       - "Display macOS configuration status:"
       - "  - Dialog preferences: {% if dialog_prefs.changed %}configured for expansion and List view{% else %}already set{% endif %}"
-      - "  - Applications restarted: {% if app_restarts.changed %}yes{% else %}not needed{% endif %}"
+      # - "  - Applications restarted: {% if app_restarts.changed %}yes{% else %}not needed{% endif %}"
 
       - "Screenshot configuration configured:"
       - "  - Directory: {% if screenshot_dir.changed %}created{% else %}already exists{% endif %} ({{ ansible_env.myPics }}/screens)"
