@@ -243,7 +243,8 @@ else
 fi
 
 showExt=$(defaults read NSGlobalDomain AppleShowAllExtensions 2>/dev/null || echo "0")
-if [[ "$showExt" == "1" ]]; then
+# 0 = default; 1 = show extensions
+if [[ "$showExt" == "0" ]]; then
     pass "Show all extensions: enabled"
 else
     warn "Show extensions disabled"
