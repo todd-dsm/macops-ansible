@@ -81,3 +81,17 @@
         apply:
           tags: [ansible, development-tools]
       tags: [ansible, development-tools]
+
+    - name: Vim - The Power and The Glory
+      include_role:
+        name: vim
+        apply:
+          tags: [vim, development-tools, editors]
+      tags: [vim, development-tools, editors]
+
+    - name: Neovim Configuration
+      include_role:
+        name: neovim
+        apply:
+          tags: [neovim, development-tools, editors]
+      tags: [neovim, development-tools, editors]
