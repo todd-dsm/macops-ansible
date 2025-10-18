@@ -11,7 +11,6 @@
     - cmake
     - dockutil
     - dos2unix
-    - eza
     - fd
     - fzf
     - git-extras
@@ -117,6 +116,13 @@
     mode: '0644'
   register: functions_copy
 
+- name: Copy custom shellcheckrc rules to ~/.shellcheckrc
+  ansible.builtin.copy:
+    src: ../../../../configs/shellcheckrc.sh
+    dest: "{{ ansible_env.HOME }}/.shellcheckrc"
+    mode: '0644'
+  register: shellcheckrc_copy
+
 # -----------------------------------------------------------------------------
 # Display status
 # -----------------------------------------------------------------------------
@@ -129,8 +135,7 @@
       - "  - LibreSSL path: {% if libressl_path.changed %}added{% else %}already present{% endif %}"
       - "Shell configuration:"
       - "  - Oh My ZSH plugins: {% if plugins_updated.changed %}updated ({{ utility_plugins | length }} plugins){% else %}already configured{% endif %}"
-      - "  - Custom aliases: {% if aliases_copy.changed %}deployed{% else %}already present{% endif %}"
-      - "  - Custom functions: {% if functions_copy.changed %}deployed{% else %}already present{% endif %}"
       - "Shell aliases and functions configured:"
       - "  - Aliases: {% if aliases_copy.changed %}updated{% else %}already present{% endif %}"
       - "  - Functions: {% if functions_copy.changed %}updated{% else %}already present{% endif %}"
+      - "  - Global shellcheckrc: {% if shellcheckrc_copy.changed %}deployed{% else %}already present{% endif %}"
