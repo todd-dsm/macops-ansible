@@ -82,9 +82,11 @@
       - genpass
       - git-extras
       - gitignore
+      - gradle
       - helm
       - history
       - nmap
+      - pip       # FIXME: move to python
       - terraform
 
 - name: Build complete plugin list
