@@ -26,6 +26,13 @@
           tags: [nodejs, development-tools]
       tags: [nodejs, development-tools]
 
+    - name: Bun JavaScript runtime
+      include_role:
+        name: bun
+        apply:
+          tags: [bun, development-tools]
+      tags: [bun, development-tools]
+
     - name: Amazon AWS CLI
       include_role:
         name: awscli
