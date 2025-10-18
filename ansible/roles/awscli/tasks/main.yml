@@ -17,18 +17,12 @@
 # -----------------------------------------------------------------------------
 # AWS CLI configuration
 # -----------------------------------------------------------------------------
-# AWS CLI Aliases configuration
-- name: Check if AWS CLI directory exists
-  ansible.builtin.stat:
-    path: "{{ ansible_env.HOME }}/.aws"
-  register: aws_dir_check
-
-- name: Create AWS CLI directory if missing
-  ansible.builtin.file:
+- name: Ensure AWS CLI directory exists
+  file:
     path: "{{ ansible_env.HOME }}/.aws/cli"
     state: directory
     mode: '0755'
-  when: not aws_dir_check.stat.exists
+  register: aws_dir_create
 
 - name: Clone awscli-aliases repository
   ansible.builtin.git:
@@ -56,5 +50,7 @@
     msg:
       - "AWS CLI setup completed:"
       - "  - Package: {% if app_install.changed %}installed{% else %}already present{% endif %}"
+      - "  - AWS directory: {% if aws_dir_create.changed %}created{% else %}already exists{% endif %}"
+      - "  - Clone awscli-aliases: {% if aliases_clone.changed %}cloned{% else %}already exists{% endif %}"
       - "  - Shell config: {% if env_config.changed %}deployed{% else %}already present{% endif %}"
       - "  - AWS CLI aliases: {% if aliases_install.changed %}installed{% else %}already present{% endif %} at ~/.aws/cli/alias"
