@@ -34,14 +34,6 @@
           tags: [foundation]
       tags: [foundation]
 
-    # NEW: Add backup here
-    - name: Backup /etc directory
-      include_tasks:
-        file: ../tasks/configure/backup-etc.yml
-        apply:
-          tags: [foundation]
-      tags: [foundation]
-
     # SSH key management (now with base tag)
     - name: Configure SSH keys
       include_tasks:
@@ -50,14 +42,9 @@
           tags: [base]
       tags: [base]
 
-    # System backups (conditional)
-    - name: Perform system backups
-      include_tasks: ../tasks/configure/system-backups.yml
-      when: env_mode == "TEST"
-
     # Terminal setup prerequisites
     - name: Setup terminal prerequisites
-      include_tasks: ../tasks/configure/terminal-prereqs.yml
+      include_tasks: ../tasks/configure/terminal-support.yml
 
     # # Post-configuration validation
     # - name: Foundation validation
