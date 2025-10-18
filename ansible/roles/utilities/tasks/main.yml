@@ -5,11 +5,16 @@
     name: "{{ item }}"
     state: present
   loop:
+    - bat
     - bazel
     - cfssl
     - cmake
     - dockutil
     - dos2unix
+    - eza
+    - fd
+    - fzf
+    - git-extras
     - ipcalc
     - jid
     - jq
@@ -17,6 +22,7 @@
     - nmap
     - psgrep
     - pstree
+    - ripgrep
     - rsync
     - sipcalc
     - ssh-copy-id
@@ -56,31 +62,44 @@
 # -----------------------------------------------------------------------------
 # Add OMZSH plugins
 # -----------------------------------------------------------------------------
-- name: Check which OMZSH utility plugins are already configured
-  ansible.builtin.shell: grep '^plugins=' "{{ ansible_env.HOME }}/.zshrc" | grep -o '{{ item }}'
-  loop:
-    - brew
-    - nmap
-    - encode64
-    - gitignore
-    - colored-man-pages
-    - common-aliases
-    - genpass
-    - history
-  register: plugin_checks
-  failed_when: false
+# -----------------------------------------------------------------------------
+# Add OMZSH plugins - OPTIMIZED APPROACH
+# -----------------------------------------------------------------------------
+- name: Get current Oh My ZSH plugin list
+  ansible.builtin.shell: grep '^plugins=' "{{ ansible_env.HOME }}/.zshrc" | sed 's/^plugins=(\(.*\))$/\1/'
+  register: current_plugins
   changed_when: false
+  failed_when: false
 
-- name: Add missing OMZSH utility plugins to ~/.zshrc
+- name: Set desired utility plugins
+  set_fact:
+    utility_plugins:
+      - aws
+      - brew
+      - colored-man-pages
+      - common-aliases
+      - encode64
+      - fzf
+      - genpass
+      - git-extras
+      - gitignore
+      - helm
+      - history
+      - nmap
+      - terraform
+
+- name: Build complete plugin list
+  set_fact:
+    all_plugins: "{{ (current_plugins.stdout.split() + utility_plugins) | unique | sort }}"
+  when: current_plugins.rc == 0
+
+- name: Update Oh My ZSH plugins in ~/.zshrc
   ansible.builtin.lineinfile:
     path: "{{ ansible_env.HOME }}/.zshrc"
-    regexp: '^plugins=\((.*)\)$'
-    line: 'plugins=(\1 {{ item.item }})'
-    backrefs: yes
-  loop: "{{ plugin_checks.results }}"
-  when: item.rc != 0
-  register: plugins_added
-
+    regexp: '^plugins=\(.*\)$'
+    line: "plugins=({{ all_plugins | join(' ') }})"
+  when: current_plugins.rc == 0
+  register: plugins_updated
 # -----------------------------------------------------------------------------
 # Add OMZSH Custom aliases and functions
 # -----------------------------------------------------------------------------
@@ -108,10 +127,10 @@
       - "  - Network utilities: {% if network_utils.changed %}installed{% else %}already present{% endif %}"
       - "  - Build utilities: {% if build_utils.changed %}installed{% else %}already present{% endif %}"
       - "  - LibreSSL path: {% if libressl_path.changed %}added{% else %}already present{% endif %}"
-      - "Shell utility plugins:"
-      - "  - Total plugins processed: {{ plugin_checks.results | length }}"
-      - "  - Plugins added: {{ plugins_added.results | selectattr('changed', 'equalto', true) | map(attribute='item.item') | list | join(', ') if plugins_added.changed else 'none' }}"
-      - "  - Already configured: {{ plugin_checks.results | selectattr('rc', 'equalto', 0) | map(attribute='item') | list | join(', ') if plugin_checks.results | selectattr('rc', 'equalto', 0) | list | length > 0 else 'none' }}"
+      - "Shell configuration:"
+      - "  - Oh My ZSH plugins: {% if plugins_updated.changed %}updated ({{ utility_plugins | length }} plugins){% else %}already configured{% endif %}"
+      - "  - Custom aliases: {% if aliases_copy.changed %}deployed{% else %}already present{% endif %}"
+      - "  - Custom functions: {% if functions_copy.changed %}deployed{% else %}already present{% endif %}"
       - "Shell aliases and functions configured:"
       - "  - Aliases: {% if aliases_copy.changed %}updated{% else %}already present{% endif %}"
       - "  - Functions: {% if functions_copy.changed %}updated{% else %}already present{% endif %}"
