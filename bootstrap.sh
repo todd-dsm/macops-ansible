@@ -24,6 +24,5 @@ source ./my-vars.env >/dev/null 2>&1
 
 print_goal "Starting mac-ops config of ${myHostName%.*} on $START_HDATE..."
 
-exit
 cd ansible
 ansible-playbook site.yml -i inventory/localhost "$@"
