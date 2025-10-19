@@ -109,6 +109,13 @@
   register: snippets_disabled
   failed_when: false
 
+- name: Copy vim environment configuration
+  ansible.builtin.copy:
+    src: vim.zsh
+    dest: "{{ ansible_env.HOME }}/.oh-my-zsh/custom/vim.zsh"
+    mode: '0644'
+  register: env_config
+
 - name: Display vim setup status
   debug:
     msg:
@@ -120,5 +127,5 @@
       - "  - Symlinks: {% if vimrc_link.changed or vim_dir_link.changed %}created{% else %}already present{% endif %}"
       - "  - Plugins: {% if plugin_install.changed %}installed{% else %}already present{% endif %}"
       - "  - Snippets disabled: {% if snippets_disabled.changed %}yes{% else %}not needed{% endif %}"
-      - ""
+      - "  - Shell config: {% if env_config.changed %}deployed{% else %}already present{% endif %}"
       - "Launch 'vim' to start using vim-simple"
