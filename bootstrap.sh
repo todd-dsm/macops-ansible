@@ -22,7 +22,7 @@ echo "$START_EPOCH" > /tmp/ansible_start_time
 # Load variables into the environment quietly
 source ./my-vars.env >/dev/null 2>&1
 
-print_goal "Starting mac-ops config of $myMBPName on $START_HDATE..."
+print_goal "Starting mac-ops config of ${myHostName%.*} on $START_HDATE..."
 
 exit
 cd ansible
