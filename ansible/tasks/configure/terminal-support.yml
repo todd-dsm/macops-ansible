@@ -19,10 +19,6 @@
     update: yes
   register: solarized_clone
 
-- name: Display solarized clone status
-  debug:
-    msg: "Solarized theme {% if solarized_clone.changed %}cloned{% else %}already present{% endif %} at {{ ansible_env.termStuff }}/solarized"
-
 # Restore terminal settings from backup if available
 - name: Check for existing settings to restore
   stat:
@@ -31,7 +27,7 @@
 
 - name: Display settings restore status
   debug:
-    msg: "{% if backup_check.stat.exists %}Settings backup found - will be restored{% else %}No settings backup found to restore{% endif %}"
+    msg: 
 
 - name: Restore terminal settings if available
   shell: rsync -aEv "{{ ansible_env.myBackups }}/Documents/system" "{{ ansible_env.myDocs }}/"
@@ -48,18 +44,7 @@
 - name: Display manual configuration reminder
   debug:
     msg:
-      - ""
-      - "═══════════════════════════════════════════════════════════"
-      - "  MANUAL CONFIGURATION REQUIRED"
-      - "═══════════════════════════════════════════════════════════"
-      - ""
-      - "Terminal theme must be manually imported:"
-      - "  1. Open Terminal > Preferences (⌘,)"
-      - "  2. Click 'Profiles' tab"
-      - "  3. Click gear icon > Import..."
-      - "  4. Navigate to {{ ansible_env.termStuff }}/solarized/osx-terminal.app-colors-solarized/"
-      - "  5. Import your preferred Solarized theme"
-      - ""
-      - "See docs/post-install.md for complete instructions"
-      - "═══════════════════════════════════════════════════════════"
-      - ""
+      - "Terminal theme setup completed:"
+      - "  - Solarized theme: {% if solarized_clone.changed %}cloned{% else %}already downloaded{% endif %}"
+      - "  - Settings: {% if backup_check.stat.exists %}Settings backup found - will be restored{% else %}No settings backup found to restore{% endif %}"
+

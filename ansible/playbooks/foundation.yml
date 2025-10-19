@@ -33,7 +33,11 @@
 
     # Terminal setup prerequisites
     - name: Setup terminal prerequisites
-      include_tasks: ../tasks/configure/terminal-support.yml
+      include_tasks:
+        file: ../tasks/configure/terminal-support.yml
+        apply:
+          tags: [base]
+      tags: [base]
 
     # # Post-configuration validation
     # - name: Foundation validation
