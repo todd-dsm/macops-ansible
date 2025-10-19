@@ -17,16 +17,6 @@
           Environment mode: {{ env_mode }}
           Start time: {{ ansible_date_time.time }}
 
-    - name: Show test warning if in TEST mode
-      debug:
-        msg: "THIS IS ONLY A TEST"
-      when: env_mode == "TEST"
-
-    - name: Show live confirmation if in LIVE mode
-      debug:
-        msg: "We are preparing to go live..."
-      when: env_mode != "TEST"
-
     - name: Pre-flight validation
       include_tasks:
         file: ../tasks/validate/prereqs.yml
