@@ -46,7 +46,7 @@ export myGitConfig="$HOME/.gitconfig"
 export myGitIgnore="$HOME/.gitignore"
 export sysPaths='/etc/paths'
 export sysManPaths='/etc/manpaths'
-export # Configure Vim
+# Vim -------------------------------------------------------------------------
 export knownHosts="$HOME/.ssh/known_hosts"
 export vimSimpleTag='" vimSimple configuration'
 export vimSimpleLocal="$myCode/vimsimple"
