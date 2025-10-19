@@ -4,13 +4,12 @@
 # Usage: ./bootstrap.sh [TEST] [additional ansible-playbook args]
 set -e
 
-# Get environment mode (TEST or LIVE)
-ENV_MODE="${1:-LIVE}"
-# Shift to get remaining arguments for ansible-playbook
-shift 2>/dev/null || true
+# pretty messages
+source lib/printer.func
 
 # duration calculator
 START_EPOCH=$(date +%s)
+START_HDATE=$(date)
 #echo "DEBUG: Writing start time: $START_EPOCH to /tmp/ansible_start_time"
 echo "$START_EPOCH" > /tmp/ansible_start_time
 
@@ -23,7 +22,8 @@ echo "$START_EPOCH" > /tmp/ansible_start_time
 # Load variables into the environment quietly
 source ./my-vars.env >/dev/null 2>&1
 
-echo "Running Ansible with environment: $ENV_MODE"
+print_goal "Starting mac-ops config of $myMBPName on $START_HDATE..."
 
+exit
 cd ansible
-ansible-playbook site.yml -i inventory/localhost -e "env_mode=$ENV_MODE" "$@"
+ansible-playbook site.yml -i inventory/localhost "$@"
