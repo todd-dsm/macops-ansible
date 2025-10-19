@@ -1,18 +1,13 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC2034,SC2154
-# WE'RE EITHER TESTING OR WE AINT: IF NOT 'TEST' THEN 'LIVE' IS ASSUMED.
+# This is sourced by my-vars.env; these definitions likely won't change.
 # -----------------------------------------------------------------------------
-# EXEC: source my-vars.env <TEST|[no-argument]>
+# EXEC: source lib/system-vars.sh
 # -----------------------------------------------------------------------------
-# User-specific variables required before running the automation.
-# WARNING: YOU MUST SET THESE VARIABLES FIRST. DO NOT RUN bootstrap.sh WITHOUT
-#          HAVING CONFIGURED THESE PARAMETERS.
-# -----------------------------------------------------------------------------
-# FIXME:
-# 1) restores are disabled for now; in a time pinch.
-# 2) add options for everything
+# System-specific variables required before running the automation.
 # -----------------------------------------------------------------------------
 set -x
+
 
 # -----------------------------------------------------------------------------
 # This stuff rarely-ever changes

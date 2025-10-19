@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # shellcheck source=/dev/null
 # Simple wrapper to run Ansible
-# Usage: ./bootstrap.sh [TEST] [additional ansible-playbook args]
+# EXEC: ./bootstrap.sh --tags "vim" -vv --check
 set -e
 
 # pretty messages

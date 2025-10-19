@@ -2,7 +2,6 @@
 # shellcheck disable=SC1091,SC2016,SC2154,SC2317
 #  PURPOSE: Get updates, Xcode CLI Tools, and some package details without pain.
 #           For use with a new macOS install.
-#           ONLY TAKES ONE ARG=TEST; wil run with no args.
 # -----------------------------------------------------------------------------
 #  PREREQS: Script must be ran as Bash per Homebrew's requirements.
 #           https://docs.brew.sh/Installation
@@ -22,10 +21,8 @@ set -x
 ### VARIABLES
 ###----------------------------------------------------------------------------
 ### ENV Stuff
-: "${1:-LIVE}"
-theENV="$1"
 stage='pre'
-source my-vars.env "$theENV" > /dev/null 2>&1
+source my-vars.env > /dev/null 2>&1
 set -x
 #ghAnsibleCFG="$rawGHContent/ansible/ansible/stable-2.9/examples/ansible.cfg"
 ghAnsibleHosts="$rawGHContent/ansible/ansible/stable-2.9/examples/hosts"
@@ -490,16 +487,6 @@ printInfo '%s\n' """
     Process end   at: $timePost
     Process duration: $procDur
 """
-
-
-###----------------------------------------------------------------------------
-### RESET TEST ENVIRONMENT
-###----------------------------------------------------------------------------
-#if [[ "$theENV" == 'TEST' ]]; then
-#    sudo cp "$backupDir/paths"    /etc/paths
-#    sudo cp "$backupDir/manpaths" /etc/manpaths
-#fi
-
 
 
 ###---

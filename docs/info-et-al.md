@@ -38,7 +38,7 @@ These are a collection of logs that recorded the state of the system before the 
 1. Check automation logs for errors
 2. Verify you ran with appropriate permissions
 3. Some settings require logout/login or reboot
-4. Re-run specific roles: `./bootstrap.sh TEST --tags "macos"`
+4. Re-run specific roles: `./bootstrap.sh --tags "macos"`
 
 **For additional help:**
 

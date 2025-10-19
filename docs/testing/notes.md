@@ -1,7 +1,7 @@
 # Testing and Usage Guide
 
 ```shell
-% ./bootstrap.sh TEST --tags "base"
+% ./bootstrap.sh --tags "base"
 
 Options:
 
@@ -40,10 +40,10 @@ Test specific tags or tools in isolation:
 ```bash
 
 # Check what base setup would do
-% ./bootstrap.sh TEST --tags "base" --check
+% ./bootstrap.sh --tags "base" --check
 
 # Test Rust installation with verbosity
-% ./bootstrap.sh TEST --tags "rust" -vv
+% ./bootstrap.sh --tags "rust" -vv
 ```
 
 ### Group Testing
@@ -51,16 +51,13 @@ Test specific tags or tools in isolation:
 Test combinations of roles:
 
 ```bash
-% ./bootstrap.sh TEST --tags "foundation,development-tools"
+% ./bootstrap.sh --tags "foundation,development-tools"
 ```
 
 ### Full System Testing
 
 ```bash
-# Complete automation (when ready)
-% ./bootstrap.sh TEST
-
-# Production run (removes TEST parameter)
+# Full system configuration, simple:
 % ./bootstrap.sh
 ```
 
@@ -114,7 +111,7 @@ changed: [localhost]  # This would modify /etc/paths (but doesn't in check mode)
 
 ```bash
 # Permission errors - may need elevated privileges
-% ./bootstrap.sh TEST --tags "terraform" --ask-become-pass
+% ./bootstrap.sh --tags "terraform" --ask-become-pass
 
 # Clear Ansible cache if roles aren't found
 % rm -rf ~/.ansible/cp/

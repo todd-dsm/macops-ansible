@@ -180,7 +180,7 @@
 
 # -----------------------------------------------------------------------------
 # Preferences: Dock
-# TEST: restart the Dock: killall Dock
+# FIXME: restart the Dock: killall Dock
 # -----------------------------------------------------------------------------
 - name: Add applications to Dock
   ansible.builtin.shell: "dockutil --add {{ item }} --no-restart"
