@@ -61,7 +61,6 @@
     msg:
       - "=== AUTOMATION COMPLETED ==="
       - "  Duration: {{ duration_hours }}h {{ duration_minutes }}m {{ duration_seconds }}s"
-      - "  Environment: {{ env_mode | default('LIVE') }}"
       - ""
       - "=== CLEANUP SUMMARY ==="
       - "  - Post-install inventory: {% if app_inventory_script.changed %}saved{% else %}already current{% endif %}"
