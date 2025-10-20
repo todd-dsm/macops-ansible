@@ -14,7 +14,7 @@
 # -----------------------------------------------------------------------------
 #   AUTHOR: todd-dsm
 # -----------------------------------------------------------------------------
-set -x
+#set -x
 
 
 ###----------------------------------------------------------------------------
@@ -23,7 +23,8 @@ set -x
 ### ENV Stuff
 stage='pre'
 source my-vars.env > /dev/null 2>&1
-set -x
+source lib/printer.func > /dev/null 2>&1
+
 #ghAnsibleCFG="$rawGHContent/ansible/ansible/stable-2.9/examples/ansible.cfg"
 ghAnsibleHosts="$rawGHContent/ansible/ansible/stable-2.9/examples/hosts"
 paramsFile="${sourceDir}/gnu-programs.list"
@@ -41,13 +42,12 @@ source lib/print-message-formatting.sh
 ### MAIN PROGRAM
 ###----------------------------------------------------------------------------
 ### The opening salvo
-printInfo '\n%s\n' "Prepping the OS for mac-ops configuration..."
+print_goal "Prepping the OS for mac-ops configuration!"
 
 if [[ "$myFullName" == 'fName lName' ]]; then
-    printInfo '\n%s\n' "you didnt configure my-vars.env; do that first."
-    exit 1
+    print_error "you didnt configure my-vars.env; do that first."
 else
-    printInfo '\n%s\n' "  Configuring this macOS for $myFullName."
+    print_req "  Configuring macOS for $myFullName."
 fi
 
 
@@ -56,12 +56,14 @@ fi
 ###----------------------------------------------------------------------------
 ### Enable the script
 ###---
-curl -Ls t.ly/NUEer | zsh
+#print_req "Enter your password to enable the script:"
+curl -Ls https://bit.ly/3I9ze7G | zsh
 
 
 ### Create the admin directory if it doesn't exist
 ### We'll be using the XDG Base Directory Spec
 ### https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html
+print_goal "Creating an XDG Base Directory structure..."
 if [[ ! -d "$adminDir" ]]; then
     printInfo '\n%s\n' "Creating a space for admin logs..."
     mkdir -p "${adminDir}/"{logs,backup}
@@ -72,15 +74,14 @@ fi
 ###---
 ### Update the OS
 ###---
-printInfo '\n%s\n' "Updating macOS..."
-softwareupdate --all --install --force
+print_goal "Updating macOS..."
+#softwareupdate --all --install --force
 
 
 ###----------------------------------------------------------------------------
 ### Install Homebrew
 ###----------------------------------------------------------------------------
-printReq '\n%s\n' "Installing Homebrew..."
-
+print_goal "Installing Homebrew..."
 if ! type -P brew > /dev/null 2>&1; then
     yes | CI=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 else
@@ -90,20 +91,36 @@ fi
 ###----------------------------------------------------------------------------
 ### Configure the Shell: base options
 ###----------------------------------------------------------------------------
-printInfo '\n%s\n' "Configuring base ZSH options..."
-printInfo '\n%s\n' "  Injecting brew location into ~/.zprofile..."
+printInfo '\n%s\n' "Injecting brew location into ~/.zprofile..."
 cat >> "$myShellProfile"  <<EOF
 # so we can always find homebrew
-eval "\$($brewPath shellenv)"
+eval "\$(/opt/homebrew/bin/brew shellenv)"
 EOF
 
-# Initialize a new shell and pull in ENV VARS
-eval "$($brewPath shellenv)"
+### Initialize a new shell and pull in ENV VARS
+eval "$(/opt/homebrew/bin/brew shellenv)"
 
 printInfo '\n%s\n' "  Running 'brew doctor'..."
 brew cleanup
 brew doctor
 
+
+###----------------------------------------------------------------------------
+### Install rsync to enable quick backups
+###---
+print_goal "Installing rsync for backups..."
+brew install rsync tree
+
+
+### Backup /etc before we begin
+print_req "Backing up the /etc directory before we begin..."
+sudo rsync -aE /private/etc "$backup_dir/" 2> /tmp/rsync-err-etc.out
+
+
+### Display user config directory
+print_req "All install/config details will be recorded here:"
+tree -d -L 3 "$configDir"
+exit
 
 ###----------------------------------------------------------------------------
 ### System: pre-game
@@ -123,9 +140,6 @@ if [[ -z "$MANPATH" ]]; then
 else
     printInfo '\n%s\n' "\$MANPATH=$MANPATH"
 fi
-
-### Backup paths/manpaths files
-sudo cp /etc/*paths "$backupDir"
 
 
 ###----------------------------------------------------------------------------
