@@ -20,12 +20,12 @@ cp -v "$myShellrc" "${backupDir}/zshrc"
 
 # Bounce the default theme
 print_info "Disabling the default theme..."
-sed -i'' 's/^ZSH_THEME=/# &/' ~/.zshrc
+sed -i'' 's/^ZSH_THEME=/# &/' "$myShellrc"
 
 # Add new empty line after it
 sed -i'' '/^# ZSH_THEME=/a\
 ZSH_THEME=""
-' ~/.zshrc
+' "$myShellrc"
 
 
 ###----------------------------------------------------------------------------
