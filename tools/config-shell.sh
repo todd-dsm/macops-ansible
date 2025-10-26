@@ -16,7 +16,7 @@ print_goal "Configure Shell Basic Options"
 
 # Backup the default file
 print_req "Backing up the $myShellrc file..."
-#cp -v "$myShellrc" "${backupDir}/zshrc"
+cp -v "$myShellrc" "${backupDir}/zshrc"
 
 # Bounce the default theme
 print_info "Disabling the default theme..."
