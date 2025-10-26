@@ -54,7 +54,7 @@ print_req() {
 # Requirements utility (indented messages with newline above)
 print_info() {
     local theMessage="$*"
-    printf '%s\n' "$theMessage"
+    printf '%s\n' "    $theMessage"
 }
 
 # Pass utility (4-space indent, green, for successful tests)
