@@ -329,7 +329,6 @@ print_req """
 if [[ ! -d "$HOME/.oh-my-zsh" ]]; then
     sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
     tools/config-shell.sh
-    cp "${myShellDir}"/*.zsh "$myShellEnv"
 else
     print_req "Oh My ZSH is already installed."
 fi
@@ -338,27 +337,29 @@ fi
 ###----------------------------------------------------------------------------
 ### Janitorial stuff
 ###----------------------------------------------------------------------------
-timePost="$(date +'%T')"
-
 ### Save the install-prep log
 mv -f /tmp/install-prep.out "$adminLogs/install-prep.log"
 
 ### Create a link to the log file
-ln -s "$adminLogs/install-prep.log" install-prep.log
+ln -s "$adminLogs/install-prep.log" /tmp/install-prep.log
 
 
 ###----------------------------------------------------------------------------
-### Announcements
+### What's the total run-time?
 ###----------------------------------------------------------------------------
 ### POST: Calculate duration
 timePost="$(date +'%s')"
 procDur=$((timePost - timePre))
 
-# Convert seconds to HH:MM:SS
+### Convert seconds to HH:MM:SS
 hours=$((procDur / 3600))
 mins=$(((procDur % 3600) / 60))
 secs=$((procDur % 60))
 
+
+###----------------------------------------------------------------------------
+### Announcements
+###----------------------------------------------------------------------------
 print_info """
     Process start at: $(date -r "$timePre" +'%T')
     Process end   at: $(date -r "$timePost" +'%T')
@@ -371,8 +372,11 @@ print_req """
 
 	You are now prepped for the mac-ops process.
 
-    It's time to reboot!
-    sudo shutdown -r now
+	Review /tmp/install-prep.log for errors. Then...
+
+
+    	It's time to reboot!
+    	sudo shutdown -r now
 """
 
 
