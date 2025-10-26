@@ -40,6 +40,22 @@
     remote_src: yes
   register: aliases_install
 
+# -----------------------------------------------------------------------------
+# AWS EC2 Instance Selector
+# -----------------------------------------------------------------------------
+- name: Add AWS tap for additional tools
+  community.general.homebrew_tap:
+    name: aws/tap
+    state: present
+  register: aws_tap
+
+- name: Install EC2 Instance Selector
+  community.general.homebrew:
+    name: aws/tap/ec2-instance-selector
+    state: present
+  register: ec2_selector_install
+
+
 - name: Clean up temporary clone
   ansible.builtin.file:
     path: /tmp/awscli-aliases
@@ -54,3 +70,6 @@
       - "  - Clone awscli-aliases: {% if aliases_clone.changed %}cloned{% else %}already exists{% endif %}"
       - "  - Shell config: {% if env_config.changed %}deployed{% else %}already present{% endif %}"
       - "  - AWS CLI aliases: {% if aliases_install.changed %}installed{% else %}already present{% endif %} at ~/.aws/cli/alias"
+      - "AWS EC2 Instance Selector setup completed:"
+      - "  - AWS tap: {% if aws_tap.changed %}added{% else %}already present{% endif %}"
+      - "  - EC2 Instance Selector: {% if ec2_selector_install.changed %}installed{% else %}already present{% endif %}"
