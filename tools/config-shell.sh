@@ -5,34 +5,40 @@
 ### Variables
 ###----------------------------------------------------------------------------
 source my-vars.env > /dev/null 2>&1
-ohmyzshMisc="$HOME/.oh-my-zsh/lib/misc.zsh"
+source lib/printer.func > /dev/null 2>&1
+omzsh_misc="${omzsh_lib}/misc.zsh"
 
 
 ###----------------------------------------------------------------------------
 ### Configure the Shell: base options
 ###----------------------------------------------------------------------------
+print_goal "Configure Shell Basic Options"
+
 # Backup the default file
-printf '\n%s\n' "Backing up the $myShellrc file..."
-cp "$myShellrc" "${backupDir}/zshrc"
+print_req "Backing up the $myShellrc file..."
+#cp -v "$myShellrc" "${backupDir}/zshrc"
 
 # Bounce the default theme
-printf '\n%s\n' "Disabling default theme..."
-"$gnuSed" -i 's/^ZSH_THEME/#ZSH_THEME/g' "$myShellrc"
+print_info "Disabling the default theme..."
+sed -i'' 's/^ZSH_THEME=/# &/' ~/.zshrc
 
-# Default to NO THEME
-printf '\n%s\n' "Enabling NO theme..."
-"$gnuSed" -i "\|^#ZSH_THEME|a ZSH_THEME=''" "$myShellrc"
+# Add new empty line after it
+sed -i'' '/^# ZSH_THEME=/a\
+ZSH_THEME=""
+' ~/.zshrc
 
 
 ###----------------------------------------------------------------------------
 ### Configure: ~/.oh-my-zsh/lib/misc.zsh
+###   THIS DOESN'T APPEAR TO BE NECESSARY ANY MORE
 ###----------------------------------------------------------------------------
-"$gnuSed" -i '/PAGER\|LESS/ s/^/#/g' "$ohmyzshMisc"
+#print_req "Configuring the default pager..."
+#sed -i'' '/PAGER\|LESS/ s/^/#/' "$omzsh_misc"
 
 
 ###----------------------------------------------------------------------------
 ### Post-configuration Steps
 ###----------------------------------------------------------------------------
-printf '\n%s\n' "Securing $myShellrc..."
+print_req "Securing $myShellrc..."
 chmod 600 "$myShellrc"
 
