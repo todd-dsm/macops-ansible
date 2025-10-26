@@ -167,7 +167,7 @@ print_req "Adding paths for new GNU programs..."
 ### Add paths for all elements in the gnuProgs array
 for myProg in "${gnuProgs[@]}"; do
     gnuPath="$(brew --prefix "$myProg")"
-    print_info "    $myProg"
+    print_info "$myProg"
     sudo sed -i '' "/\/usr\/local\/bin/i\\
 $gnuPath/libexec/gnubin
 " "$sysPaths"
@@ -175,14 +175,11 @@ done
 
 
 ### Configure MANPATHs
-### Move system manpaths down 1 line
-sudo "$gnuSed" -i -n '2{h;n;G};p' "$sysManPaths"
-
 ### Add manpaths for the GNU Manuals
 print_req "Adding manpaths for new GNU manuals..."
 for myProg in "${gnuProgs[@]}"; do
     gnuPath="$(brew --prefix "$myProg")"
-    print_info "    $myProg"
+    print_info "$myProg"
     sudo sed -i '' "/\/usr\/share\/man/i\\
 $gnuPath/libexec/gnuman
 " "$sysManPaths"
@@ -285,37 +282,37 @@ print_req "Saving some ${0:t} post-exec details..."
 
 
 ### Save list of all OS-related apps
-print_info "    Apps to a list..."
+print_info "Apps to a list..."
 find /Applications -maxdepth 1 -type d -print | \
     sed 's|/Applications/||'    \
     > "$adminLogs/apps-find-all-$stage-install.log"
 
 
 ### Save log of all dotDirectories in your HOME directory
-print_info "    \$HOME dot directories to a list..."
+print_info "\$HOME dot directories to a list..."
 find "$HOME" -maxdepth 1 \( -type d -o -type l \) -name ".*" | \
     sed "s|^$HOME/||" > "$adminLogs/apps-home-dot-dirs-$stage-install.log"
 
 
 ### Save log of all Homebrew-installed programs
-print_info "    Homebrew programs to a list..."
+print_info "Homebrew programs to a list..."
 brew leaves > "$adminLogs/apps-homebrew-$stage-install.log"
 
 
 ### Save log of all OS-related apps
-print_info "    PAID Apps to a list..."
+print_info "PAID Apps to a list..."
 find /Applications -maxdepth 4 -path '*Contents/_MASReceipt/receipt' -print | \
     sed 's|.app/Contents/_MASReceipt/receipt|.app|g; s|/Applications/||' \
     > "$adminLogs/apps-paid-$stage-install.log"
 
 
 ### Save minimal application and library output
-print_info "    Apps to a list: pkgutil..."
+print_info "Apps to a list: pkgutil..."
 pkgutil --pkgs > "$adminLogs/apps-pkgutil-$stage-install.log"
 
 
 ### Save log of all Python-related libs
-print_info "    Python libraries (Homebrew) to a list..."
+print_info "Python libraries (Homebrew) to a list..."
 pip3 list > "$adminLogs/libs-pip-python-$stage-install.log"
 
 
